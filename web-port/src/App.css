@@ -1,0 +1,176 @@
+.app-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* UI Overlays */
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  background: radial-gradient(circle at center, rgba(13, 15, 18, 0.8) 0%, rgba(13, 15, 18, 1) 100%);
+}
+
+.overlay.shop-phase {
+  background: rgba(13, 15, 18, 0.95);
+  backdrop-filter: blur(15px);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+  perspective: 1000px;
+}
+
+.hero-card {
+  width: 200px;
+  height: 280px;
+  background: linear-gradient(135deg, var(--bg-surface) 0%, #222630 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.hero-card:hover {
+  transform: translateY(-10px) rotateX(10deg);
+  border-color: var(--accent);
+  box-shadow: 0 20px 40px var(--accent-glow);
+}
+
+.hero-color {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-top: 1rem;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.5);
+}
+
+.hero-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.hero-class {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.hero-description {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  line-height: 1.3;
+  padding: 0 0.5rem;
+}
+
+.hero-price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Header UI */
+.top-bar {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  right: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 20;
+}
+
+.gold-display {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.round-display {
+  font-size: 1.5rem;
+  color: var(--text-main);
+  opacity: 0.8;
+}
+
+.game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.build-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 5;
+  padding: 1rem 2rem;
+  border-radius: 30px;
+}
+
+.snake-segment-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.health-bar {
+  position: absolute;
+  top: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background: var(--accent-secondary);
+  box-shadow: 0 0 10px var(--accent-secondary-glow);
+  transition: width 0.3s ease;
+}
+
+.hud-message {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 20px var(--accent-glow);
+  z-index: 100;
+  animation: slideDown 0.5s ease;
+}
