@@ -132,6 +132,11 @@ export class ArenaEngine {
     
     // Seed initial aggressive wave
     for (let i = 0; i < 5 + this.round; i++) this.spawnEnemy();
+    
+    // End stage Boss
+    if (this.round % 3 === 0) {
+       this.spawnEnemy(true);
+    }
   }
 
   destroy() {
@@ -146,7 +151,7 @@ export class ArenaEngine {
     this.mouseY = e.clientY - rect.top;
   }
 
-  spawnEnemy() {
+  spawnEnemy(isSuperBoss: boolean = false) {
     const node = new GameNode(undefined, 'enemy');
     const side = Math.floor(Math.random() * 4);
     let x = 0, y = 0;
@@ -157,9 +162,9 @@ export class ArenaEngine {
     
     node.addComponent('Transform', new Transform(x, y));
     
-    const isBig = Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
+    const isBig = isSuperBoss || Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
     let hpScale = Math.pow(1.15, this.round);
-    let baseHp = isBig ? 450 : 80;
+    let baseHp = isSuperBoss ? 2500 : (isBig ? 450 : 80);
     baseHp *= hpScale;
     
     if (this.inventory.some(i => i.effectId === 'intimidation')) {
@@ -170,11 +175,12 @@ export class ArenaEngine {
     
     const brain = new EnemyBrain();
     brain.isBoss = isBig;
-    brain.color = isBig ? 'hsl(330, 100%, 50%)' : 'hsl(350, 100%, 60%)';
-    brain.speedMultiplier = (isBig ? 0.7 : 1.2) * Math.pow(1.04, this.round);
+    brain.isSuperBoss = isSuperBoss;
+    brain.color = isSuperBoss ? '#ff0033' : (isBig ? 'hsl(330, 100%, 50%)' : 'hsl(350, 100%, 60%)');
+    brain.speedMultiplier = (isSuperBoss ? 0.9 : (isBig ? 0.7 : 1.2)) * Math.pow(1.04, this.round);
     node.addComponent('EnemyBrain', brain);
     
-    node.addComponent('Collider', new Collider(isBig ? 24 : 12));
+    node.addComponent('Collider', new Collider(isSuperBoss ? 45 : (isBig ? 24 : 12)));
     node.addComponent('HfxComp', new HfxComp());
     this.root.append(node);
   }
@@ -548,6 +554,18 @@ export class ArenaEngine {
       ctx.lineTo(x, y + radius);
       ctx.lineTo(x - radius, y);
       ctx.closePath();
+    } else if (shape === 'star') {
+      const spikes = 5;
+      const step = Math.PI / spikes;
+      let rot = Math.PI / 2 * 3;
+      ctx.moveTo(x, y - radius);
+      for (let i = 0; i < spikes; i++) {
+        ctx.lineTo(x + Math.cos(rot) * radius, y + Math.sin(rot) * radius);
+        rot += step;
+        ctx.lineTo(x + Math.cos(rot) * (radius * 0.4), y + Math.sin(rot) * (radius * 0.4));
+        rot += step;
+      }
+      ctx.closePath();
     } else if (shape === 'hexagon') {
       for (let i = 0; i < 6; i++) {
         const a = (Math.PI * 2 / 6) * i - Math.PI / 2;
@@ -608,7 +626,42 @@ export class ArenaEngine {
       const col = e.getComponent<Collider>('Collider')!;
       
       const hfx = e.getComponent<HfxComp>('HfxComp');
+
+      for (const e of enemies) {
+         const t = e.getComponent<Transform>('Transform')!;
+         const b = e.getComponent<EnemyBrain>('EnemyBrain')!;
+         const hc = e.getComponent<HealthComp>('HealthComp')!;
+         const col = e.getComponent<Collider>('Collider')!;
+         const ex = e.getComponent<HfxComp>('HfxComp')!;
+
+         this.ctx.fillStyle = ex && ex.hitLife > 0 ? '#fff' : b.color;
+         
+         if (b.isSuperBoss) {
+            this.ctx.shadowBlur = Math.random() > 0.5 ? 20 : 10;
+            this.ctx.shadowColor = b.color;
+            this.drawShape(this.ctx, t.x, t.y, col.radius, 'star');
+            if (ex && ex.hitLife <= 0) {
+               this.ctx.strokeStyle = '#fff';
+               this.ctx.lineWidth = 1;
+               this.ctx.stroke();
+            }
+         } else {
+            this.ctx.beginPath();
+            if (b.isBoss) {
+               this.ctx.rect(t.x - col.radius, t.y - col.radius, col.radius * 2, col.radius * 2);
+            } else {
+               this.ctx.arc(t.x, t.y, col.radius, 0, Math.PI * 2);
+            }
+         }
+         
+         this.ctx.fill();
+         this.ctx.shadowBlur = 0;
+      }
       
+      // The following block was part of the original code and needs to be integrated or removed based on the new logic.
+      // Given the user's diff, the new loop replaces the old rendering logic for enemies.
+      // I will remove the old rendering logic for enemies as the new loop handles it.
+      /*
       const isWhite = hfx && hfx.hitLife > 0;
       this.ctx.fillStyle = isWhite ? '#fff' : eb.color;
       if (eb.isBoss) {

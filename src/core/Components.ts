@@ -30,10 +30,10 @@ export class PlayerBrain {
 }
 
 export class EnemyBrain {
-  speedMultiplier: number = 1;
   isBoss: boolean = false;
-  color: string = '#f00';
-  hitCooldown: number = 0;
+  isSuperBoss: boolean = false;
+  color: string = '';
+  speedMultiplier: number = 1;
 }
 
 export class ProjectileComp {
