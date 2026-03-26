@@ -22,9 +22,7 @@ export class ArenaEngine {
   inventory: ItemDef[];
   score: number = 0;
   
-  classCounts: Record<string, number> = {};
   round: number;
-  inventory: ItemDef[];
   onGameOver: () => void;
   onVictory: (score: number) => void;
   public currentHp: number;
@@ -486,6 +484,8 @@ export class ArenaEngine {
             if (Math.hypot(st.x - et.x, st.y - et.y) < 25) {
                eb.hitCooldown = 1.0;
                globalHealth.hp -= 10;
+               this.currentHp -= 10;
+               this.setHp(this.currentHp);
                
                const shfx = segment.getComponent<HfxComp>('HfxComp');
                if (shfx) shfx.hitLife = 0.3;
@@ -806,7 +806,6 @@ export class ArenaEngine {
        this.ctx.fillText(`CLEAN UP!`, this.canvas.width / 2, 60);
     }
 
-    CameraSystem.postRender(this.ctx);
     this.ctx.restore();
   }
 }
