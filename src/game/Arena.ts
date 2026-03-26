@@ -654,9 +654,10 @@ export class ArenaEngine {
     // Snake
     const snake = this.getNodesWith(['PlayerBrain', 'Transform', 'HeroDef', 'HfxComp']);
     for (let i = snake.length - 1; i >= 0; i--) {
-      const hTrans = snake[i].getComponent<Transform>('Transform')!;
-      const hDef = snake[i].getComponent<any>('HeroDef')!;
-      const hfx = snake[i].getComponent<HfxComp>('HfxComp')!;
+      const heroNode = snake[i]; // Renamed from 'snake[i]' to 'heroNode' for clarity
+      const hTrans = heroNode.getComponent<Transform>('Transform')!;
+      const hDef = heroNode.getComponent<any>('HeroDef')!;
+      const hfx = heroNode.getComponent<HfxComp>('HfxComp')!;
       
       const isWhite = hfx.hitLife > 0 || hfx.shootLife > 0;
       this.ctx.fillStyle = isWhite ? '#fff' : hDef.color;
@@ -666,6 +667,7 @@ export class ArenaEngine {
       this.ctx.save();
       this.ctx.translate(hTrans.x, hTrans.y);
       this.ctx.rotate(hTrans.rotation);
+      this.ctx.scale(0.7, 0.7); // Reduce hero size globally by 30% to prevent massive screen clutter
       
       this.drawShape(this.ctx, 0, 0, 15, hDef.shape || 'circle');
       this.ctx.fill();
