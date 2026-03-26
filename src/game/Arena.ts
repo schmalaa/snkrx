@@ -590,10 +590,47 @@ export class ArenaEngine {
       this.ctx.fill();
       this.ctx.stroke();
       
-      // inner detail
-      this.ctx.fillStyle = isWhite ? '#fff' : 'rgba(255, 255, 255, 0.3)';
-      this.drawShape(this.ctx, 0, 0, 6, hDef.shape || 'circle');
-      this.ctx.fill();
+      // inner detail artistic weapon vectors
+      this.ctx.fillStyle = isWhite ? '#fff' : 'rgba(255, 255, 255, 0.4)';
+      this.ctx.strokeStyle = isWhite ? '#fff' : 'rgba(255, 255, 255, 0.6)';
+      this.ctx.lineWidth = 1.5;
+      this.ctx.lineJoin = 'round';
+      const wpn = hDef.weapon;
+      if (wpn === 'sword') {
+         this.ctx.beginPath();
+         this.ctx.moveTo(0, 8); this.ctx.lineTo(0, -8);
+         this.ctx.moveTo(-3, 4); this.ctx.lineTo(3, 4);
+         this.ctx.stroke();
+      } else if (wpn === 'arrow') {
+         this.ctx.beginPath();
+         this.ctx.moveTo(0, 8); this.ctx.lineTo(0, -8);
+         this.ctx.moveTo(-3, -5); this.ctx.lineTo(0, -8); this.ctx.lineTo(3, -5);
+         this.ctx.stroke();
+      } else if (wpn === 'orb') {
+         this.ctx.beginPath();
+         this.ctx.arc(0, 0, 5, 0, Math.PI * 2);
+         this.ctx.fill();
+         this.ctx.beginPath();
+         this.ctx.arc(0, 0, 2, 0, Math.PI * 2);
+         this.ctx.fillStyle = '#000';
+         this.ctx.fill();
+      } else if (wpn === 'dagger') {
+         this.ctx.beginPath();
+         this.ctx.moveTo(0, -7); this.ctx.lineTo(2, -2); this.ctx.lineTo(0, 7); this.ctx.lineTo(-2, -2);
+         this.ctx.fill();
+      } else if (wpn === 'shield') {
+         this.ctx.beginPath();
+         this.ctx.moveTo(-4, -5); this.ctx.lineTo(4, -5); this.ctx.lineTo(4, 2); 
+         this.ctx.lineTo(0, 6); this.ctx.lineTo(-4, 2); this.ctx.closePath();
+         this.ctx.fill();
+      } else if (wpn === 'lightning') {
+         this.ctx.beginPath();
+         this.ctx.moveTo(2, -7); this.ctx.lineTo(-2, 0); this.ctx.lineTo(3, 0); this.ctx.lineTo(-3, 7);
+         this.ctx.stroke();
+      } else {
+         this.drawShape(this.ctx, 0, 0, 6, hDef.shape || 'circle');
+         this.ctx.fill();
+      }
       this.ctx.restore();
     }
     

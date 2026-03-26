@@ -1,0 +1,3 @@
+- Create icons or "artistic" enhancement to heroes to better reflect what they do.
+- Storm hero should have actual lightning that damages enemies within a certain range.
+- 

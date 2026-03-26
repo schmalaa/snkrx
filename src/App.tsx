@@ -7,6 +7,37 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT';
 
+const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
+  const S = hero.shape;
+  const W = hero.weapon;
+  
+  return (
+    <div style={{ width: size, height: size, display: 'inline-block', filter: `drop-shadow(0 0 8px ${hero.color}88)` }}>
+      <svg viewBox="0 0 100 100" width={size} height={size}>
+         {/* Background Shape */}
+         <g fill={hero.color} stroke="rgba(255,255,255,0.8)" strokeWidth="4" strokeLinejoin="round">
+            {S === 'circle' && <circle cx="50" cy="50" r="45" />}
+            {S === 'square' && <rect x="5" y="5" width="90" height="90" rx="15" />}
+            {S === 'triangle' && <polygon points="50,10 95,90 5,90" />}
+            {S === 'diamond' && <polygon points="50,5 95,50 50,95 5,50" />}
+            {S === 'hexagon' && <polygon points="50,5 90,25 90,75 50,95 10,75 10,25" />}
+            {S === 'cross' && <polygon points="35,5 65,5 65,35 95,35 95,65 65,65 65,95 35,95 35,65 5,65 5,35 35,35" />}
+         </g>
+         
+         {/* Inner Weapon Icon */}
+         <g stroke="#fff" fill="#fff" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" style={{ transformOrigin: '50% 50%', transform: 'scale(0.8)' }}>
+            {W === 'sword' && <><line x1="50" y1="20" x2="50" y2="80" /><line x1="30" y1="65" x2="70" y2="65" /></>}
+            {W === 'arrow' && <><line x1="50" y1="20" x2="50" y2="80" /><polyline points="30,40 50,20 70,40" fill="none" /></>}
+            {W === 'orb' && <><circle cx="50" cy="50" r="20" /><circle cx="50" cy="50" r="8" fill="#000" /></>}
+            {W === 'dagger' && <><polygon points="50,20 70,40 50,80 30,40" strokeWidth="2" /></>}
+            {W === 'shield' && <><path d="M 25 30 L 75 30 L 75 60 Q 50 90 25 60 Z" strokeWidth="4" /></>}
+            {W === 'lightning' && <><polyline points="70,25 40,55 55,55 30,85" fill="none" /></>}
+         </g>
+      </svg>
+    </div>
+  );
+};
+
 function App() {
   const [phase, setPhase] = useState<Phase>('START');
   const [gold, setGold] = useState(10);
@@ -20,10 +51,32 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArenaEngine | null>(null);
 
-  // Generate 3 random shop items
+  // Generate 3 random shop items using scaling tier logic
   const generateShop = () => {
-    const sorted = [...CHARACTER_DATA].sort(() => 0.5 - Math.random());
-    setShopItems(sorted.slice(0, 3));
+    let weights = [0, 0, 0, 0]; // Indices 0-3 map to Tier 1-4 probabilities
+    if (round < 4) weights = [0.90, 0.10, 0.00, 0.00];
+    else if (round < 8) weights = [0.70, 0.25, 0.05, 0.00];
+    else if (round < 14) weights = [0.50, 0.30, 0.15, 0.05];
+    else weights = [0.30, 0.30, 0.25, 0.15];
+
+    const pickHeroByTier = () => {
+      const roll = Math.random();
+      let cum = 0;
+      let selectedTier = 1;
+      for (let i = 0; i < 4; i++) {
+        cum += weights[i];
+        if (roll <= cum) {
+          selectedTier = i + 1;
+          break;
+        }
+      }
+      // Strictly grab pool of selected tier. If empty fallback to random.
+      const pool = CHARACTER_DATA.filter(c => c.tier === selectedTier);
+      if (pool.length === 0) return CHARACTER_DATA[Math.floor(Math.random() * CHARACTER_DATA.length)];
+      return pool[Math.floor(Math.random() * pool.length)];
+    };
+
+    setShopItems([pickHeroByTier(), pickHeroByTier(), pickHeroByTier()]);
   };
   
   const generateItems = () => {
@@ -143,9 +196,9 @@ function App() {
               />
            </div>
            
-           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem' }}>
+           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
              {snake.map((s, idx) => (
-                <div key={idx} className="snake-segment-icon" style={{ backgroundColor: s.color }} title={s.name} />
+                <HeroIcon key={idx} hero={s} size={30} />
              ))}
            </div>
         </>
@@ -199,7 +252,9 @@ function App() {
             <div className="hero-grid">
               {shopItems.map((item, idx) => (
                 <div key={idx} className="hero-card">
-                  <div className="hero-color" style={{ backgroundColor: item.color }} />
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                    <HeroIcon hero={item} size={80} />
+                  </div>
                   <div style={{ textAlign: 'center' }}>
                     <div className="hero-name">{item.name}</div>
                     <div className="hero-class">{item.classes.join(', ')}</div>
@@ -230,14 +285,9 @@ function App() {
                 <div style={{ display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '1rem 2rem', borderRadius: '50px' }}>
                   {snake.length === 0 && <div style={{ color: '#555' }}>Empty</div>}
                   {snake.map((s) => (
-                   <motion.div 
-                     key={s.id}
-                     initial={{ scale: 0 }}
-                     animate={{ scale: 1 }}
-                     className="snake-segment-icon" 
-                     style={{ width: '30px', height: '30px', backgroundColor: s.color, boxShadow: `0 0 10px ${s.color}` }}
-                     title={s.name} 
-                   />
+                   <motion.div key={s.id} initial={{ scale: 0 }} animate={{ scale: 1 }} title={s.name}>
+                     <HeroIcon hero={s} size={40} />
+                   </motion.div>
                 ))}
                 </div>
               </div>
