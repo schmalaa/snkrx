@@ -40,9 +40,10 @@ const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) =>
 
 function App() {
   const [phase, setPhase] = useState<Phase>('START');
-  const [gold, setGold] = useState(10);
+  const [gold, setGold] = useState(3);
   const [round, setRound] = useState(1);
   const [score, setScore] = useState(0);
+  const [maxSnakeLength, setMaxSnakeLength] = useState(3);
   const [snake, setSnake] = useState<CharacterDef[]>([]);
   const [shopItems, setShopItems] = useState<CharacterDef[]>([]);
   const [inventory, setInventory] = useState<ItemDef[]>([]);
@@ -87,7 +88,7 @@ function App() {
   };
 
   const buyHero = (hero: CharacterDef) => {
-    if (gold >= hero.tier) {
+    if (gold >= hero.tier && snake.length < maxSnakeLength) {
       setGold(prev => prev - hero.tier);
       setSnake(prev => [...prev, { ...hero, id: hero.id + Math.random() }]); // give unique instance id
     }
@@ -112,7 +113,7 @@ function App() {
       setPhase('ITEM_SELECT');
     } else {
       setRound(r => r + 1);
-      setGold(g => g + 3 + Math.floor(round / 2));
+      setGold(g => g + 2 + Math.floor(round / 4));
       generateShop();
       setPhase('SHOP');
     }
@@ -217,7 +218,8 @@ function App() {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
                 setSnake([{ ...CHARACTER_DATA[0], id: 'h1_initial' }]); // Start with Vagrant
-                setGold(10);
+                setGold(3);
+                setMaxSnakeLength(3);
                 setRound(1);
                 setInventory([]);
                 generateShop();
@@ -336,11 +338,11 @@ function App() {
                   </div>
                   <button 
                     className="btn" 
-                    disabled={gold < item.tier}
+                    disabled={gold < item.tier || snake.length >= maxSnakeLength}
                     style={{ 
                       width: '100%', 
-                      opacity: gold < item.tier ? 0.5 : 1,
-                      cursor: gold < item.tier ? 'not-allowed' : 'pointer',
+                      opacity: (gold < item.tier || snake.length >= maxSnakeLength) ? 0.5 : 1,
+                      cursor: (gold < item.tier || snake.length >= maxSnakeLength) ? 'not-allowed' : 'pointer',
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                     }}
                     onClick={() => buyHero(item)}
@@ -350,6 +352,28 @@ function App() {
                   </button>
                 </div>
               ))}
+            </div>
+            
+            <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.5)', padding: '1.5rem', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #444', maxWidth: '800px', margin: '2rem auto 0 auto' }}>
+               <div style={{ textAlign: 'left' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff' }}>Snake Capacity</h3>
+                  <p style={{ margin: '0.5rem 0 0 0', color: '#aaa', fontSize: '1.1rem' }}>Party Size: {snake.length} / {maxSnakeLength}</p>
+               </div>
+               <button 
+                 className="btn"
+                 disabled={gold < (5 + (maxSnakeLength - 3) * 5)}
+                 style={{
+                    opacity: gold < (5 + (maxSnakeLength - 3) * 5) ? 0.5 : 1,
+                    cursor: gold < (5 + (maxSnakeLength - 3) * 5) ? 'not-allowed' : 'pointer',
+                    padding: '1rem 2rem'
+                 }}
+                 onClick={() => {
+                    setGold(g => g - (5 + (maxSnakeLength - 3) * 5));
+                    setMaxSnakeLength(m => m + 1);
+                 }}
+               >
+                 UPGRADE +1 <br/> <span style={{fontSize: '0.9rem'}}>💰 {5 + (maxSnakeLength - 3) * 5} Gold</span>
+               </button>
             </div>
 
             {/* Current Build Display */}
@@ -462,7 +486,8 @@ function App() {
              <p style={{ fontSize: '1.5rem', color: '#ccc', marginBottom: '3rem' }}>The snake succumbed to the swarm on Round {score}.</p>
              <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
                 setSnake([]);
-                setGold(10);
+                setGold(3);
+                setMaxSnakeLength(3);
                 setRound(1);
                 setInventory([]);
                 setPhase('START');

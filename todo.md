@@ -27,3 +27,4 @@
 
 - Add a health bar so the user has indication of how much health they have left.
 - Add a firing indicator so the user knows how long each of their have until they fire again.
+- This is now know as "Synapse Snake" Chane the home page, title, package.json, etc. to reflect this name.
