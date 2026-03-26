@@ -731,6 +731,8 @@ export class ArenaEngine {
     const snake = this.getNodesWith(['PlayerBrain', 'Transform', 'HeroDef', 'HfxComp']);
     for (let i = snake.length - 1; i >= 0; i--) {
       const heroNode = snake[i]; // Renamed from 'snake[i]' to 'heroNode' for clarity
+      const pb = heroNode.getComponent<PlayerBrain>('PlayerBrain')!;
+      const stats = heroNode.getComponent<UnitStats>('UnitStats');
       const hTrans = heroNode.getComponent<Transform>('Transform')!;
       const hDef = heroNode.getComponent<any>('HeroDef')!;
       const hfx = heroNode.getComponent<HfxComp>('HfxComp')!;
