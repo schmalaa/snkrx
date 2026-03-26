@@ -52,6 +52,10 @@ export class ArenaEngine {
     this.init(heroes);
   }
 
+  public roundTimeLeft: number = 0;
+  private spawnInterval: number = 1.0;
+  private spawnTimer: number = 0;
+
   public get health(): number {
     const h = this.root.getComponent<HealthComp>('HealthComp');
     return h ? h.hp : 0;
@@ -105,8 +109,13 @@ export class ArenaEngine {
     });
 
     window.addEventListener('mousemove', this.handleMouseMove);
-    const enemyCount = this.round === 1 ? 5 : this.round === 2 ? 8 : 10 + this.round * 3;
-    for (let i = 0; i < enemyCount; i++) this.spawnEnemy();
+    
+    // Compute exact seconds required to survive
+    this.roundTimeLeft = 15 + this.round * 2;
+    this.spawnInterval = Math.max(0.3, 1.5 - this.round * 0.05);
+    
+    // Seed initial aggressive wave
+    for (let i = 0; i < 3; i++) this.spawnEnemy();
   }
 
   destroy() {
@@ -133,8 +142,8 @@ export class ArenaEngine {
     node.addComponent('Transform', new Transform(x, y));
     
     const isBig = Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
-    let hpScale = 0.5 + (this.round * 0.2); // R1: 0.7x, R5: 1.5x, R10: 2.5x
-    let baseHp = isBig ? 100 : 30;
+    let hpScale = Math.pow(1.15, this.round);
+    let baseHp = isBig ? 150 : 30;
     baseHp *= hpScale;
     
     if (this.inventory.some(i => i.effectId === 'intimidation')) {
@@ -146,7 +155,7 @@ export class ArenaEngine {
     const brain = new EnemyBrain();
     brain.isBoss = isBig;
     brain.color = isBig ? 'hsl(330, 100%, 50%)' : 'hsl(350, 100%, 60%)';
-    brain.speedMultiplier = (isBig ? 0.7 : 1.2) * (0.8 + this.round * 0.05);
+    brain.speedMultiplier = (isBig ? 0.7 : 1.2) * Math.pow(1.04, this.round);
     node.addComponent('EnemyBrain', brain);
     
     node.addComponent('Collider', new Collider(isBig ? 24 : 12));
@@ -174,12 +183,7 @@ export class ArenaEngine {
       return;
     }
     
-    const enemies = this.getNodesWith(['EnemyBrain']);
-    if (enemies.length === 0) {
-      this.isRunning = false;
-      this.onVictory(this.score);
-      return;
-    }
+    // Progress is now managed entirely in `update(dt)` via `roundTimeLeft`
     
     requestAnimationFrame(this.loop);
   }
@@ -407,23 +411,76 @@ export class ArenaEngine {
       if (hit) proj.destroy();
     }
 
-    // Enemy follow snake logic
+    // Dynamic spawning loop!
+    this.roundTimeLeft -= dt;
+    this.spawnTimer += dt;
+    const activeEnemies = this.getNodesWith(['EnemyBrain', 'Transform', 'Collider', 'HealthComp']);
+    
+    if (this.roundTimeLeft > 0 && this.spawnTimer >= this.spawnInterval) {
+       this.spawnTimer = 0;
+       this.spawnEnemy();
+    }
+    
+    // When time's up and the arena is manually cleared of stragglers, we win!
+    if (this.roundTimeLeft <= 0 && activeEnemies.length === 0) {
+       this.isRunning = false;
+       this.onVictory(this.score);
+       return;
+    }
+
+    // Enemy follow snake logic and Contact Damage
     const globalHealth = this.root.getComponent<HealthComp>('HealthComp')!;
-    for (const e of enemies) {
+    const head = snake[0]; // Define head for pursuit reference
+    for (const e of activeEnemies) {
       const et = e.getComponent<Transform>('Transform')!;
       const eb = e.getComponent<EnemyBrain>('EnemyBrain')!;
-      const col = e.getComponent<Collider>('Collider')!;
       
-      const dHead = Math.hypot(headT.x - et.x, headT.y - et.y);
-      if (dHead < col.radius + 15) {
-        globalHealth.hp -= 10 * dt;
-        this.spawnParticles(headT.x, headT.y, 'white', 1, 2);
-        const camSys = this.systems.find(s => s instanceof CameraSystem) as CameraSystem;
-        if (camSys) camSys.shake(5, 0.2);
+      // Calculate repulsion vector from other active enemies
+      let repX = 0;
+      let repY = 0;
+      for (const oe of activeEnemies) {
+        if (e === oe) continue;
+        const oet = oe.getComponent<Transform>('Transform')!;
+        const dist = Math.hypot(et.x - oet.x, et.y - oet.y);
+        if (dist > 0 && dist < 40) {
+          repX += (et.x - oet.x) / dist;
+          repY += (et.y - oet.y) / dist;
+        }
+      }
+
+      // Move towards snake head
+      if (head) {
+         const dx = headT.x - et.x;
+         const dy = headT.y - et.y;
+         const dist = Math.hypot(dx, dy);
+         if (dist > 0) {
+           et.x += (dx / dist * 60 * eb.speedMultiplier + repX * 50) * dt;
+           et.y += (dy / dist * 60 * eb.speedMultiplier + repY * 50) * dt;
+         }
+      }
+      
+      // Harsh Hitbox checking across ALL active segments
+      if (eb.hitCooldown > 0) {
+         eb.hitCooldown -= dt;
       } else {
-        const hAngle = Math.atan2(headT.y - et.y, headT.x - et.x);
-        et.x += Math.cos(hAngle) * eb.speedMultiplier * dt * 60;
-        et.y += Math.sin(hAngle) * eb.speedMultiplier * dt * 60;
+         for (const segment of snake) {
+            const st = segment.getComponent<Transform>('Transform')!;
+            if (Math.hypot(st.x - et.x, st.y - et.y) < 25) {
+               eb.hitCooldown = 1.0;
+               globalHealth.hp -= 10;
+               
+               const shfx = segment.getComponent<HfxComp>('HfxComp');
+               if (shfx) shfx.hitLife = 0.3;
+               
+               const camSys = this.systems.find(s => s instanceof CameraSystem) as CameraSystem;
+               if (camSys) camSys.shake(12, 0.2);
+               
+               // Contact also damages the chasing enemy moderately!
+               const eh = e.getComponent<HealthComp>('HealthComp');
+               if (eh) eh.hp -= 30;
+               break;
+            }
+         }
       }
     }
   }

@@ -5,7 +5,7 @@ import { CHARACTER_DATA, ITEM_DATA } from './game/Data';
 import type { CharacterDef, ItemDef } from './game/Data';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM';
+type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM' | 'GAME_OVER';
 
 const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
   const S = hero.shape;
@@ -98,11 +98,8 @@ function App() {
   };
 
   const handleGameOver = () => {
-    setPhase('START');
-    setGold(10);
-    setRound(1);
-    setSnake([]);
-    // Stop engine
+    setPhase('GAME_OVER');
+    setScore(round);
     engineRef.current?.destroy();
     engineRef.current = null;
   };
@@ -456,6 +453,24 @@ function App() {
           </motion.div>
         )}
 
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {phase === 'GAME_OVER' && (
+          <motion.div className="overlay glass-panel" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
+             <h2 className="title" style={{ fontSize: '5rem', marginBottom: '1rem', background: 'linear-gradient(to right, #ff4757, #ff6b81)', WebkitBackgroundClip: 'text' }}>GAME OVER</h2>
+             <p style={{ fontSize: '1.5rem', color: '#ccc', marginBottom: '3rem' }}>The snake succumbed to the swarm on Round {score}.</p>
+             <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
+                setSnake([]);
+                setGold(10);
+                setRound(1);
+                setInventory([]);
+                setPhase('START');
+             }}>
+                MAIN MENU
+             </button>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* DEV TOOLS */}

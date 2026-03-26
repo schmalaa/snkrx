@@ -33,6 +33,7 @@ export class EnemyBrain {
   speedMultiplier: number = 1;
   isBoss: boolean = false;
   color: string = '#f00';
+  hitCooldown: number = 0;
 }
 
 export class ProjectileComp {

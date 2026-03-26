@@ -23,3 +23,7 @@
 - [x] Create a dev mode - so I can add whatever heroes I want and test synergies.
 - [x] Compendium button text is not visible on hover - Compendium is not text most users will understand. Wiki?
 - [x] Move the hero icons closer together in the snake. Almost touching.  
+
+
+- Add a health bar so the user has indication of how much health they have left.
+- Add a firing indicator so the user knows how long each of their have until they fire again.
