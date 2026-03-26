@@ -14,4 +14,6 @@
 - [x] The lightning doesnt visually look like lightning. It looks like a blue line... have it jagged and with a flash effect. 
 - [x] Alignment issues on hero cards when one has more content then the others
 
-![lots of alignment issues](image.png)
+- [x] Investigate bug with lightning. The top left corner of the screen is constantly being hit by lightning or something... its a blue circle in the top left over and over.
+- [x] Create a seperate page explaining the characteristics of each hero and class. 
+- ![lots of alignment issues](image.png)

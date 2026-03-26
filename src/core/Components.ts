@@ -73,3 +73,8 @@ export class SnakeHistoryComp {
   followerIndex: number = 0;
 }
 
+export class TargetComp {
+  x: number = 0;
+  y: number = 0;
+}
+

@@ -1,5 +1,5 @@
 import { GameNode } from '../core/Node';
-import { Transform, Physics, ParticleComp, HealthComp, PlayerBrain, EnemyBrain, ProjectileComp, Collider, HfxComp, HitCircleComp, SnakeHistoryComp } from '../core/Components';
+import { Transform, Physics, ParticleComp, HealthComp, PlayerBrain, EnemyBrain, ProjectileComp, Collider, HfxComp, HitCircleComp, SnakeHistoryComp, TargetComp } from '../core/Components';
 import { PhysicsSystem, ParticleSystem, CameraSystem, HfxSystem, HitCircleSystem } from '../core/Systems';
 import { CLASS_DATA } from './Data';
 import type { ItemDef } from './Data';
@@ -298,9 +298,9 @@ export class ArenaEngine {
                   pComp.color = hDef.color;
                   pComp.weapon = 'lightning_arc';
                   const et = t.getComponent<Transform>('Transform')!;
-                  // Store target coordinates in velocity to read in render phase
-                  const phys = new Physics(); phys.vx = et.x; phys.vy = et.y;
-                  arc.addComponent('Physics', phys);
+                  // Store target coordinates explicitly via TargetComp to prevent Physics overlap drifting
+                  const tc = new TargetComp(); tc.x = et.x; tc.y = et.y;
+                  arc.addComponent('TargetComp', tc);
                   arc.addComponent('ProjectileComp', pComp);
                   this.root.append(arc);
                   
@@ -561,16 +561,16 @@ export class ArenaEngine {
       
       if (pc.weapon === 'lightning_arc') {
          // Realistic jagged lightning multi-pass
-         const phys = p.getComponent<Physics>('Physics')!;
+         const tc = p.getComponent<TargetComp>('TargetComp')!;
          
          const drawJagged = (ctx: CanvasRenderingContext2D, width: number, color: string, jitter: number) => {
             ctx.beginPath();
             ctx.moveTo(pt.x, pt.y);
             const steps = 6;
             for (let i = 1; i <= steps; i++) {
-               const rx = (phys.vx - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * jitter;
-               const ry = (phys.vy - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * jitter;
-               if (i === steps) ctx.lineTo(phys.vx, phys.vy);
+               const rx = (tc.x - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * jitter;
+               const ry = (tc.y - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * jitter;
+               if (i === steps) ctx.lineTo(tc.x, tc.y);
                else ctx.lineTo(rx, ry);
             }
             ctx.strokeStyle = color;
@@ -590,7 +590,7 @@ export class ArenaEngine {
          
          // Impact blooms
          this.ctx.beginPath();
-         this.ctx.arc(phys.vx, phys.vy, 30 + Math.random() * 20, 0, Math.PI * 2);
+         this.ctx.arc(tc.x, tc.y, 30 + Math.random() * 20, 0, Math.PI * 2);
          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
          this.ctx.fill();
          this.ctx.beginPath();

@@ -5,7 +5,7 @@ import { CHARACTER_DATA, ITEM_DATA } from './game/Data';
 import type { CharacterDef, ItemDef } from './game/Data';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT';
+type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM';
 
 const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
   const S = hero.shape;
@@ -230,6 +230,9 @@ function App() {
               <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setShowHelp(true)}>
                 HOW TO PLAY
               </button>
+              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: 'transparent', border: '1px solid #555' }} onClick={() => setPhase('COMPENDIUM')}>
+                COMPENDIUM
+              </button>
             </div>
             
             <div style={{ position: 'absolute', bottom: '1.5rem', width: '100%', left: 0, textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
@@ -250,6 +253,44 @@ function App() {
                <p style={{ marginBottom: '1.5rem' }}><strong>4. Relics:</strong> Defeat the Elite Boss every 3 rounds to draft permanent passive Relic upgrades that alter your run!</p>
              </div>
              <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setShowHelp(false)}>BACK</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {phase === 'COMPENDIUM' && (
+          <motion.div className="overlay glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 100, overflowY: 'auto' }}>
+             <h2 className="title" style={{ fontSize: '3rem', marginBottom: '1rem' }}>SNAKE COMPENDIUM</h2>
+             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '2rem' }}>
+                <div style={{ flex: '1', minWidth: '300px', background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '20px' }}>
+                   <h3 style={{ borderBottom: '1px solid #555', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--accent)' }}>Classes & Synergies</h3>
+                   <ul style={{ listStyle: 'none', padding: 0, textAlign: 'left', lineHeight: '1.8', color: '#ccc' }}>
+                     <li><strong style={{ color: '#fff' }}>Warrior (3+):</strong> +50% Global Damage. Frontline bruisers.</li>
+                     <li><strong style={{ color: '#fff' }}>Mage (3+):</strong> +50% Global Damage. Heavy AoE magic.</li>
+                     <li><strong style={{ color: '#fff' }}>Enchanter (2+):</strong> +25% Global Damage. Elemental chaining attacks.</li>
+                     <li><strong style={{ color: '#fff' }}>Psyker:</strong> Manipulates time and space.</li>
+                     <li><strong style={{ color: '#fff' }}>Ranger:</strong> Piercing, high single-target physical projectiles.</li>
+                   </ul>
+                </div>
+             </div>
+
+             <h3 style={{ color: 'var(--accent-secondary)', fontSize: '2rem', marginBottom: '2rem' }}>Hero Roster</h3>
+             <div className="hero-grid" style={{ maxWidth: '1200px', margin: '0 auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+               {CHARACTER_DATA.map(hero => (
+                <div key={hero.id} className="hero-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', borderColor: '#444' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                    <HeroIcon hero={hero} size={60} />
+                  </div>
+                  <div style={{ textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className="hero-name" style={{ fontSize: '1.2rem' }}>{hero.name}</div>
+                    <div className="hero-class" style={{ color: '#aaa', fontSize: '0.8rem', marginBottom: '0.5rem' }}>{hero.classes.join(', ')}</div>
+                    <div style={{ color: '#ffb142', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Cost: {Array(hero.tier).fill('⭐').join('')}</div>
+                    <div className="hero-description" style={{ marginBottom: '1rem', color: '#ccc', fontSize: '0.9rem' }}>{hero.description}</div>
+                  </div>
+                </div>
+               ))}
+             </div>
+             <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
           </motion.div>
         )}
       </AnimatePresence>
