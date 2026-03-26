@@ -35,7 +35,7 @@
 
 - [x] Snake Capacity button needs margins. It is touching "Snake Capacity".
 
-- Revisit lightning. This should be a single lightning bolt that strikes from the hero to the enemy. After hitting the initial enemy if another enemy is within range, it will change to the next. Up to 3 chains.
+- Revisit lightning. This should be a single lightning bolt that strikes from the hero to the enemy. After hitting the initial enemy if another enemy is within range, it will change to the next. Up to 3 chains. --- I noticed commented out code in arena.ts.. is this it?
 - Let's add ranges to different heroes. Swordsman has a short range.. they will only attack when the enemy is near. The ranger can attack at a further distance. So, the heroes in the snake can target more than just the closest enemy.
 
 ### User Feedback

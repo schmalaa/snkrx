@@ -620,66 +620,43 @@ export class ArenaEngine {
     // Enemies
     const enemies = this.getNodesWith(['EnemyBrain', 'Transform', 'Collider', 'HealthComp']);
     for (const e of enemies) {
-      const et = e.getComponent<Transform>('Transform')!;
-      const eb = e.getComponent<EnemyBrain>('EnemyBrain')!;
-      const eh = e.getComponent<HealthComp>('HealthComp')!;
-      const col = e.getComponent<Collider>('Collider')!;
-      
-      const hfx = e.getComponent<HfxComp>('HfxComp');
+       const t = e.getComponent<Transform>('Transform')!;
+       const b = e.getComponent<EnemyBrain>('EnemyBrain')!;
+       const hc = e.getComponent<HealthComp>('HealthComp')!;
+       const col = e.getComponent<Collider>('Collider')!;
+       const ex = e.getComponent<HfxComp>('HfxComp');
 
-      for (const e of enemies) {
-         const t = e.getComponent<Transform>('Transform')!;
-         const b = e.getComponent<EnemyBrain>('EnemyBrain')!;
-         const hc = e.getComponent<HealthComp>('HealthComp')!;
-         const col = e.getComponent<Collider>('Collider')!;
-         const ex = e.getComponent<HfxComp>('HfxComp')!;
-
-         this.ctx.fillStyle = ex && ex.hitLife > 0 ? '#fff' : b.color;
-         
-         if (b.isSuperBoss) {
-            this.ctx.shadowBlur = Math.random() > 0.5 ? 20 : 10;
-            this.ctx.shadowColor = b.color;
-            this.drawShape(this.ctx, t.x, t.y, col.radius, 'star');
-            if (ex && ex.hitLife <= 0) {
-               this.ctx.strokeStyle = '#fff';
-               this.ctx.lineWidth = 1;
-               this.ctx.stroke();
-            }
-         } else {
-            this.ctx.beginPath();
-            if (b.isBoss) {
-               this.ctx.rect(t.x - col.radius, t.y - col.radius, col.radius * 2, col.radius * 2);
-            } else {
-               this.ctx.arc(t.x, t.y, col.radius, 0, Math.PI * 2);
-            }
-         }
-         
-         this.ctx.fill();
-         this.ctx.shadowBlur = 0;
-      }
-      
-      // The following block was part of the original code and needs to be integrated or removed based on the new logic.
-      // Given the user's diff, the new loop replaces the old rendering logic for enemies.
-      // I will remove the old rendering logic for enemies as the new loop handles it.
-      /*
-      const isWhite = hfx && hfx.hitLife > 0;
-      this.ctx.fillStyle = isWhite ? '#fff' : eb.color;
-      if (eb.isBoss) {
-        this.ctx.fillRect(et.x - col.radius, et.y - col.radius, col.radius*2, col.radius*2);
-      } else {
-        this.ctx.beginPath();
-        const angle = Math.atan2(this.mouseY - et.y, this.mouseX - et.x);
-        this.ctx.moveTo(et.x + Math.cos(angle)*col.radius, et.y + Math.sin(angle)*col.radius);
-        this.ctx.lineTo(et.x + Math.cos(angle+2.5)*col.radius, et.y + Math.sin(angle+2.5)*col.radius);
-        this.ctx.lineTo(et.x + Math.cos(angle-2.5)*col.radius, et.y + Math.sin(angle-2.5)*col.radius);
-        this.ctx.fill();
-      }
-      if (eh.hp < eh.maxHp) {
-        this.ctx.fillStyle = 'rgba(255,0,0,0.5)';
-        this.ctx.fillRect(et.x - 10, et.y - col.radius - 8, 20, 4);
-        this.ctx.fillStyle = '#0f0';
-        this.ctx.fillRect(et.x - 10, et.y - col.radius - 8, 20 * (eh.hp/eh.maxHp), 4);
-      }
+       this.ctx.fillStyle = ex && ex.hitLife > 0 ? '#fff' : b.color;
+       
+       if (b.isSuperBoss) {
+          this.ctx.beginPath();
+          this.ctx.shadowBlur = Math.random() > 0.5 ? 20 : 10;
+          this.ctx.shadowColor = b.color;
+          this.drawShape(this.ctx, t.x, t.y, col.radius, 'star');
+          this.ctx.fill();
+          if (ex && ex.hitLife <= 0) {
+             this.ctx.strokeStyle = '#fff';
+             this.ctx.lineWidth = 1;
+             this.ctx.stroke();
+          }
+          this.ctx.shadowBlur = 0;
+       } else if (b.isBoss) {
+          this.ctx.fillRect(t.x - col.radius, t.y - col.radius, col.radius*2, col.radius*2);
+       } else {
+          this.ctx.beginPath();
+          const angle = Math.atan2(this.mouseY - t.y, this.mouseX - t.x);
+          this.ctx.moveTo(t.x + Math.cos(angle)*col.radius, t.y + Math.sin(angle)*col.radius);
+          this.ctx.lineTo(t.x + Math.cos(angle+2.5)*col.radius, t.y + Math.sin(angle+2.5)*col.radius);
+          this.ctx.lineTo(t.x + Math.cos(angle-2.5)*col.radius, t.y + Math.sin(angle-2.5)*col.radius);
+          this.ctx.fill();
+       }
+       
+       if (hc.hp < hc.maxHp) {
+         this.ctx.fillStyle = 'rgba(255,0,0,0.5)';
+         this.ctx.fillRect(t.x - 10, t.y - col.radius - 8, 20, 4);
+         this.ctx.fillStyle = '#0f0';
+         this.ctx.fillRect(t.x - 10, t.y - col.radius - 8, 20 * (hc.hp/hc.maxHp), 4);
+       }
     }
     
     // Projectiles
