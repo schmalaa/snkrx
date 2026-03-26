@@ -2,7 +2,7 @@ import { GameNode } from '../core/Node';
 import { Transform, Physics, ParticleComp, HealthComp, PlayerBrain, EnemyBrain, ProjectileComp, Collider, HfxComp, HitCircleComp, SnakeHistoryComp, TargetComp } from '../core/Components';
 import { PhysicsSystem, ParticleSystem, CameraSystem, HfxSystem, HitCircleSystem } from '../core/Systems';
 import { CLASS_DATA } from './Data';
-import type { ItemDef } from './Data';
+import type { ItemDef, CharacterDef } from './Data';
 import { UnitStats } from './Stats';
 
 export class ArenaEngine {
@@ -20,12 +20,16 @@ export class ArenaEngine {
   
   classCounts: Record<string, number>;
   inventory: ItemDef[];
-  round: number;
   score: number = 0;
   
+  classCounts: Record<string, number> = {};
+  round: number;
+  inventory: ItemDef[];
   onGameOver: () => void;
   onVictory: (score: number) => void;
-  
+  public currentHp: number;
+  private setHp: (hp: number) => void;
+
   // Fast query wrappers
   getNodesWith(components: string[]): GameNode[] {
     const list: GameNode[] = [];
@@ -38,18 +42,32 @@ export class ArenaEngine {
     return list;
   }
 
-  constructor(canvas: HTMLCanvasElement, heroes: any[], classCounts: Record<string, number>, round: number, onGameOver: () => void, onVictory: (score: number) => void, inventory: ItemDef[] = []) {
+  constructor(
+    canvas: HTMLCanvasElement,
+    initialSnake: CharacterDef[],
+    classCounts: Record<string, number>,
+    round: number,
+    onGameOver: () => void,
+    onVictory: (score: number) => void,
+    inventory: ItemDef[] = [],
+    currentHp: number = 100,
+    setHp: (hp: number) => void = () => {}
+  ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.width = canvas.width;
     this.height = canvas.height;
+    
     this.classCounts = classCounts;
     this.round = round;
     this.inventory = inventory;
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
+    this.currentHp = currentHp;
+    this.setHp = setHp;
+    
     this.root = new GameNode('world');
-    this.init(heroes);
+    this.init(initialSnake);
   }
 
   public roundTimeLeft: number = 0;
@@ -775,6 +793,20 @@ export class ArenaEngine {
       this.ctx.restore();
     }
     
+    // HUD Timer Render
+    if (this.roundTimeLeft > 0) {
+       this.ctx.fillStyle = '#ff4757';
+       this.ctx.font = 'bold 32px Outfit, sans-serif';
+       this.ctx.textAlign = 'center';
+       this.ctx.fillText(`Survive: ${Math.ceil(this.roundTimeLeft)}s`, this.canvas.width / 2, 60);
+    } else {
+       this.ctx.fillStyle = '#2ed573';
+       this.ctx.font = 'bold 32px Outfit, sans-serif';
+       this.ctx.textAlign = 'center';
+       this.ctx.fillText(`CLEAN UP!`, this.canvas.width / 2, 60);
+    }
+
+    CameraSystem.postRender(this.ctx);
     this.ctx.restore();
   }
 }
