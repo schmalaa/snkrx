@@ -212,7 +212,8 @@ export class ArenaEngine {
 
     for (let i = 1; i < snake.length; i++) {
        const cur = snake[i].getComponent<Transform>('Transform')!;
-       const targetDistance = 30 * i;
+       // Tighten the visual snake layout (radius is ~10.5, so 14 means almost touching)
+       const targetDistance = 14 * i;
        let distanceSum = 0;
        
        if (hHist && hHist.history.length > 0) {

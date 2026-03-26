@@ -48,6 +48,7 @@ function App() {
   const [inventory, setInventory] = useState<ItemDef[]>([]);
   const [itemChoices, setItemChoices] = useState<ItemDef[]>([]);
   const [showHelp, setShowHelp] = useState(false);
+  const [showDev, setShowDev] = useState(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArenaEngine | null>(null);
@@ -197,9 +198,9 @@ function App() {
               />
            </div>
            
-           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
+           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '2px', alignItems: 'center' }}>
              {snake.map((s, idx) => (
-                <HeroIcon key={idx} hero={s} size={30} />
+                <HeroIcon key={idx} hero={s} size={24} />
              ))}
            </div>
         </>
@@ -230,8 +231,8 @@ function App() {
               <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setShowHelp(true)}>
                 HOW TO PLAY
               </button>
-              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: 'transparent', border: '1px solid #555' }} onClick={() => setPhase('COMPENDIUM')}>
-                COMPENDIUM
+              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setPhase('COMPENDIUM')}>
+                WIKI
               </button>
             </div>
             
@@ -260,7 +261,7 @@ function App() {
       <AnimatePresence>
         {phase === 'COMPENDIUM' && (
           <motion.div className="overlay glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 100, overflowY: 'auto' }}>
-             <h2 className="title" style={{ fontSize: '3rem', marginBottom: '1rem' }}>SNAKE COMPENDIUM</h2>
+             <h2 className="title" style={{ fontSize: '3rem', marginBottom: '1rem' }}>SNAKE WIKI</h2>
              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '2rem' }}>
                 <div style={{ flex: '1', minWidth: '300px', background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '20px' }}>
                    <h3 style={{ borderBottom: '1px solid #555', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--accent)' }}>Classes & Synergies</h3>
@@ -456,6 +457,34 @@ function App() {
         )}
 
       </AnimatePresence>
+
+      {/* DEV TOOLS */}
+      <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 999 }}>
+        <button onClick={() => setShowDev(!showDev)} style={{ background: '#333', color: '#fff', border: '1px solid #555', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer', opacity: showDev ? 1 : 0.5 }}>
+          💻 DEV
+        </button>
+      </div>
+      
+      {showDev && (
+        <div style={{ position: 'absolute', top: '50px', right: '10px', width: '300px', background: 'rgba(0,0,0,0.9)', border: '1px solid var(--accent)', padding: '15px', borderRadius: '10px', zIndex: 998, maxHeight: '80vh', overflowY: 'auto' }}>
+          <h3 style={{ color: 'var(--accent)', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>DEV MENU</h3>
+          <button style={{ background: '#fff', color: '#000', padding: '5px', width: '100%', marginBottom: '15px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setGold(g => g + 999)}>+999 GOLD</button>
+          
+          <div style={{ color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>ADD DIRECTLY TO SNAKE:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            {CHARACTER_DATA.map(c => (
+               <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#222', padding: '5px 10px', borderRadius: '5px' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                   <HeroIcon hero={c} size={20} />
+                   <span style={{ fontSize: '0.9rem' }}>{c.name}</span>
+                 </div>
+                 <button onClick={() => setSnake(s => [...s, { ...c, id: Math.random().toString() }])} style={{ background: 'var(--accent)', border: 'none', width: '25px', height: '25px', cursor: 'pointer', borderRadius: '3px', fontWeight: 'bold' }}>+</button>
+               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

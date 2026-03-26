@@ -17,3 +17,9 @@
 - [x] Investigate bug with lightning. The top left corner of the screen is constantly being hit by lightning or something... its a blue circle in the top left over and over.
 - [x] Create a seperate page explaining the characteristics of each hero and class. 
 - [x] ![lots of alignment issues](image.png)
+
+
+
+- [x] Create a dev mode - so I can add whatever heroes I want and test synergies.
+- [x] Compendium button text is not visible on hover - Compendium is not text most users will understand. Wiki?
+- [x] Move the hero icons closer together in the snake. Almost touching.  
