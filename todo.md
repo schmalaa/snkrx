@@ -6,7 +6,8 @@
 - [x] Create a "key" so user know what tiers the available heroes are.
 - [x] Create a "how to play" section. This should be accessible from the main menu.
 - [x] Add a "made with <3 by Alex" to the footer and link to alexschmaltz.com
-- Fix alignment issue on "Hire" button
+- [x] Fix alignment issue on "Hire" button
 
 
 - How to play button text isnt visible on hover
+- Add space betwween numbeered list on How to play popup

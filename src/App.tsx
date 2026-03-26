@@ -300,7 +300,7 @@ function App() {
                       width: '100%', 
                       opacity: gold < item.tier ? 0.5 : 1,
                       cursor: gold < item.tier ? 'not-allowed' : 'pointer',
-                      display: 'flex', justifyContent: 'space-between'
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                     }}
                     onClick={() => buyHero(item)}
                   >
