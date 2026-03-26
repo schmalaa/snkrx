@@ -9,5 +9,9 @@
 - [x] Fix alignment issue on "Hire" button
 
 
-- How to play button text isnt visible on hover
-- Add space betwween numbeered list on How to play popup
+- [x] How to play button text isnt visible on hover
+- [x] Add space betwween numbeered list on How to play popup
+- [x] The lightning doesnt visually look like lightning. It looks like a blue line... have it jagged and with a flash effect. 
+- [x] Alignment issues on hero cards when one has more content then the others
+
+![lots of alignment issues](image.png)

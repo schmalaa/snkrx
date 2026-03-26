@@ -244,10 +244,10 @@ function App() {
           <motion.div className="overlay glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 100 }}>
              <h2 className="title" style={{ fontSize: '3rem', marginBottom: '2rem' }}>HOW TO PLAY</h2>
              <div style={{ textAlign: 'left', maxWidth: '600px', fontSize: '1.2rem', lineHeight: '1.8', color: '#ddd' }}>
-               <p><strong>1. Build Your Snake:</strong> Use gold in the Tavern to hire specialized heroes. Heroes have unique weapons and classes.</p>
-               <p><strong>2. Class Synergies:</strong> Hiring multiple heroes of the SAME class unlocks massive passive buffs (e.g. 3 Warriors gain +50% damage).</p>
-               <p><strong>3. Combat:</strong> Steer your snake using the mouse. Heroes automatically attack nearby enemies based on distance and cooldowns.</p>
-               <p><strong>4. Relics:</strong> Defeat the Elite Boss every 3 rounds to draft permanent passive Relic upgrades that alter your run!</p>
+               <p style={{ marginBottom: '1.5rem' }}><strong>1. Build Your Snake:</strong> Use gold in the Tavern to hire specialized heroes. Heroes have unique weapons and classes.</p>
+               <p style={{ marginBottom: '1.5rem' }}><strong>2. Class Synergies:</strong> Hiring multiple heroes of the SAME class unlocks massive passive buffs (e.g. 3 Warriors gain +50% damage).</p>
+               <p style={{ marginBottom: '1.5rem' }}><strong>3. Combat:</strong> Steer your snake using the mouse. Heroes automatically attack nearby enemies based on distance and cooldowns.</p>
+               <p style={{ marginBottom: '1.5rem' }}><strong>4. Relics:</strong> Defeat the Elite Boss every 3 rounds to draft permanent passive Relic upgrades that alter your run!</p>
              </div>
              <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setShowHelp(false)}>BACK</button>
           </motion.div>
@@ -284,14 +284,14 @@ function App() {
 
             <div className="hero-grid">
               {shopItems.map((item, idx) => (
-                <div key={idx} className="hero-card">
+                <div key={idx} className="hero-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
                     <HeroIcon hero={item} size={80} />
                   </div>
-                  <div style={{ textAlign: 'center' }}>
+                  <div style={{ textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <div className="hero-name">{item.name}</div>
                     <div className="hero-class">{item.classes.join(', ')}</div>
-                    <div className="hero-description">{item.description}</div>
+                    <div className="hero-description" style={{ marginBottom: '1rem' }}>{item.description}</div>
                   </div>
                   <button 
                     className="btn" 

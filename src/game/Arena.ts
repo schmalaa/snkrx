@@ -560,24 +560,44 @@ export class ArenaEngine {
       const pc = p.getComponent<ProjectileComp>('ProjectileComp')!;
       
       if (pc.weapon === 'lightning_arc') {
-         // Custom render for the instant lightning bolts
+         // Realistic jagged lightning multi-pass
          const phys = p.getComponent<Physics>('Physics')!;
+         
+         const drawJagged = (ctx: CanvasRenderingContext2D, width: number, color: string, jitter: number) => {
+            ctx.beginPath();
+            ctx.moveTo(pt.x, pt.y);
+            const steps = 6;
+            for (let i = 1; i <= steps; i++) {
+               const rx = (phys.vx - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * jitter;
+               const ry = (phys.vy - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * jitter;
+               if (i === steps) ctx.lineTo(phys.vx, phys.vy);
+               else ctx.lineTo(rx, ry);
+            }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = color;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+         };
+
+         // Core flash intensity based on remaining life
+         const alpha = Math.max(0, Math.min(1, pc.life / 0.15));
+         this.ctx.globalAlpha = alpha;
+         
+         drawJagged(this.ctx, 4, pc.color, 40); // Outer colored plasma string
+         drawJagged(this.ctx, 1.5, '#ffffff', 15); // Inner hot white core
+         
+         // Impact blooms
          this.ctx.beginPath();
-         this.ctx.moveTo(pt.x, pt.y);
-         // draw jagged line
-         const steps = 4;
-         for (let i = 1; i <= steps; i++) {
-            const rx = (phys.vx - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * 20;
-            const ry = (phys.vy - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * 20;
-            if (i === steps) this.ctx.lineTo(phys.vx, phys.vy);
-            else this.ctx.lineTo(rx, ry);
-         }
-         this.ctx.strokeStyle = pc.color;
-         this.ctx.lineWidth = 3;
-         this.ctx.shadowBlur = 10;
-         this.ctx.shadowColor = pc.color;
-         this.ctx.stroke();
-         this.ctx.shadowBlur = 0;
+         this.ctx.arc(phys.vx, phys.vy, 30 + Math.random() * 20, 0, Math.PI * 2);
+         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+         this.ctx.fill();
+         this.ctx.beginPath();
+         this.ctx.arc(pt.x, pt.y, 20 + Math.random() * 10, 0, Math.PI * 2);
+         this.ctx.fill();
+         
+         this.ctx.globalAlpha = 1.0;
          continue;
       }
 
