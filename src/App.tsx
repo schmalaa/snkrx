@@ -212,8 +212,8 @@ function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
           >
-            <h1 className="title" style={{ fontSize: '5rem' }}>SNKRX WEB</h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '3rem', fontSize: '1.2rem', letterSpacing: '0.2rem' }}>A WEB APPLICATION PORT</p>
+            <h1 className="title" style={{ fontSize: '5rem', marginBottom: '0.5rem', letterSpacing: '0.2em' }}>SYNAPSE SNAKE</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '3rem', fontSize: '1.2rem', letterSpacing: '0.2rem' }}>A REACT + ECS SURVIVAL ENGINE</p>
             {score > 0 && <p style={{ color: 'var(--accent-secondary)', marginBottom: '2rem' }}>Latest Score: {score}</p>}
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
@@ -312,7 +312,7 @@ function App() {
             </div>
             
             <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', textShadow: '0 0 20px var(--accent-glow)' }}>
-              TAVERN
+              THE ARMORY
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
               RECRUIT HEROES FOR YOUR SNAKE

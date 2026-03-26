@@ -25,6 +25,10 @@
 - [x] Move the hero icons closer together in the snake. Almost touching.  
 
 
-- Add a health bar so the user has indication of how much health they have left.
-- Add a firing indicator so the user knows how long each of their have until they fire again.
-- This is now know as "Synapse Snake" Chane the home page, title, package.json, etc. to reflect this name.
+- [x] Add a health bar so the user has indication of how much health they have left.
+- [x] Add a firing indicator so the user knows how long each of their have until they fire again.
+- [x] This is now know as "Synapse Snake" Chane the home page, title, package.json, etc. to reflect this name.
+- [x] Create a favicon
+- [x] Add a techy, related theme to homepage background. It would be cool if it has a preview of the game in the background or something.
+- [x] Alignment of snake capacity "upgrade" button is off. 
+- [x] Let's call Tavern "The Armory"

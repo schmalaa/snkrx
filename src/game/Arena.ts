@@ -748,6 +748,17 @@ export class ArenaEngine {
       this.drawShape(this.ctx, 0, 0, 15, hDef.shape || 'circle');
       this.ctx.fill();
       this.ctx.stroke();
+
+      // Firing Cooldown Indicator
+      const maxCd = stats ? (60 / stats.aspd) : 60;
+      const cdRatio = Math.max(0, pb.cooldown / maxCd);
+      if (cdRatio > 0 && cdRatio < 0.95) {
+         this.ctx.beginPath();
+         this.ctx.arc(0, 0, 20, -Math.PI/2, -Math.PI/2 + (Math.PI * 2 * (1 - cdRatio)));
+         this.ctx.strokeStyle = 'rgba(0, 210, 255, 0.8)';
+         this.ctx.lineWidth = 3;
+         this.ctx.stroke();
+      }
       
       // inner detail artistic weapon vectors
       this.ctx.fillStyle = isWhite ? '#fff' : 'rgba(255, 255, 255, 0.4)';
