@@ -365,12 +365,13 @@ function App() {
                  style={{
                     opacity: gold < (5 + (maxSnakeLength - 3) * 5) ? 0.5 : 1,
                     cursor: gold < (5 + (maxSnakeLength - 3) * 5) ? 'not-allowed' : 'pointer',
-                    padding: '0.8rem 2rem',
+                    padding: '1.2rem 2rem',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    lineHeight: '1.4'
+                    gap: '0.5rem',
+                    lineHeight: '1'
                  }}
                  onClick={() => {
                     setGold(g => g - (5 + (maxSnakeLength - 3) * 5));
@@ -378,7 +379,7 @@ function App() {
                  }}
                >
                  <span>UPGRADE +1</span>
-                 <span style={{fontSize: '0.9rem', marginTop: '0.2rem'}}>💰 {5 + (maxSnakeLength - 3) * 5} Gold</span>
+                 <span style={{fontSize: '1rem', color: 'var(--accent)'}}>💰 {5 + (maxSnakeLength - 3) * 5} Gold</span>
                </button>
             </div>
 
