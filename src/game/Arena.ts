@@ -307,39 +307,35 @@ export class ArenaEngine {
       const pt = proj.getComponent<Transform>('Transform')!;
       const pComp = proj.getComponent<ProjectileComp>('ProjectileComp')!;
       
-      if (pt.x < 0 || pt.x > this.width || pt.y < 0 || pt.y > this.height) {
+      pComp.life -= dt;
+      if (pComp.life <= 0 || pt.x < 0 || pt.x > this.width || pt.y < 0 || pt.y > this.height) {
         proj.destroy();
         continue;
       }
       
       let hit = false;
-      for (const e of enemies) {
-        const et = e.getComponent<Transform>('Transform')!;
-        const col = e.getComponent<Collider>('Collider')!;
+      
+      if (pComp.type === 'aoe') {
+        let aoeRadius = 60;
+        if (this.classCounts['Mage'] >= 3) aoeRadius *= 1.5;
         
-        let aoeRadius = pComp.type === 'aoe' ? 60 : 0;
-        // Mage synergy for massive orb size
-        if (pComp.type === 'aoe' && this.classCounts['Mage'] >= 3) aoeRadius *= 1.5;
-
-        // Base contact size
-        if (Math.hypot(et.x - pt.x, et.y - pt.y) < col.radius + (pComp.type === 'aoe' ? 20 : 5)) {
-          
-          if (pComp.type === 'aoe') {
-             // Area effect damage apply
-              for (const e2 of enemies) {
-               const et2 = e2.getComponent<Transform>('Transform')!;
-               if (Math.hypot(et2.x - pt.x, et2.y - pt.y) < aoeRadius) {
-                 e2.getComponent<HealthComp>('HealthComp')!.hp -= pComp.damage;
-                 const ehfx = e2.getComponent<HfxComp>('HfxComp');
-                 if (ehfx) ehfx.hitLife = 0.2;
-               }
-             }
-             this.spawnParticles(pt.x, pt.y, pComp.color, 15, 5);
-             this.spawnHitCircle(pt.x, pt.y, pComp.color, aoeRadius);
-             const camSys = this.systems.find(s => s instanceof CameraSystem) as CameraSystem;
-             if (camSys) camSys.shake(4, 0.25);
-             hit = true;
-          } else {
+        for (const e of enemies) {
+          const et = e.getComponent<Transform>('Transform')!;
+          const col = e.getComponent<Collider>('Collider')!;
+          if (Math.hypot(et.x - pt.x, et.y - pt.y) < aoeRadius + col.radius) {
+            e.getComponent<HealthComp>('HealthComp')!.hp -= pComp.damage * 4 * dt; 
+            const ehfx = e.getComponent<HfxComp>('HfxComp');
+            if (ehfx) ehfx.hitLife = 0.1;
+            if (Math.random() < 0.05) this.spawnParticles(et.x, et.y, pComp.color, 1, 2);
+          }
+        }
+        // AOE projectiles pierce infinitely
+        hit = false;
+      } else {
+        for (const e of enemies) {
+          const et = e.getComponent<Transform>('Transform')!;
+          const col = e.getComponent<Collider>('Collider')!;
+          if (Math.hypot(et.x - pt.x, et.y - pt.y) < col.radius + 5) {
              const eh = e.getComponent<HealthComp>('HealthComp')!;
              eh.hp -= pComp.damage;
              hit = true;
@@ -349,9 +345,8 @@ export class ArenaEngine {
              this.spawnHitCircle(pt.x, pt.y, 'white', 20);
              const camSys = this.systems.find(s => s instanceof CameraSystem) as CameraSystem;
              if (camSys && pComp.damage > 20) camSys.shake(2, 0.1);
+             break;
           }
-          
-          break;
         }
       }
       
@@ -533,7 +528,17 @@ export class ArenaEngine {
       this.ctx.strokeStyle = pc.color;
       this.ctx.lineWidth = 2;
       
-      if (pc.weapon === 'sword') {
+      if (pc.type === 'aoe') {
+        let aoeRadius = 60;
+        if (this.classCounts['Mage'] >= 3) aoeRadius *= 1.5;
+        this.ctx.globalAlpha = 0.3 + Math.sin(performance.now() / 100) * 0.1;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, aoeRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.globalAlpha = 1.0;
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+      } else if (pc.weapon === 'sword') {
         this.ctx.beginPath();
         this.ctx.arc(0, 0, 10, -Math.PI / 3, Math.PI / 3);
         this.ctx.stroke();
