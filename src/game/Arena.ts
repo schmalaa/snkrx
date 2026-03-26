@@ -284,7 +284,7 @@ export class ArenaEngine {
           if (d < minDist) { minDist = d; nearest = e; }
         }
         
-        if (minDist < 250) {
+        if (minDist < (hDef.range || 250)) {
           const et = nearest.getComponent<Transform>('Transform')!;
           const angle = Math.atan2(et.y - hTrans.y, et.x - hTrans.x);
           
@@ -303,39 +303,60 @@ export class ArenaEngine {
           if (hDef.classes.includes('Enchanter') && this.classCounts['Enchanter'] >= 2) dmg *= 1.25;
 
           if (hDef.weapon === 'lightning') {
-             // Instant chain lightning effect
-             const targets = enemies.filter(e => {
-               const et = e.getComponent<Transform>('Transform')!;
-               return Math.hypot(et.x - hTrans.x, et.y - hTrans.y) < 250;
-             }).slice(0, 3); // chain up to 3 targets
+             // True Chain Lightning effect: Hero -> Enemy1 -> Enemy2 -> Enemy3
+             const chainPts: {x: number, y: number}[] = [{x: hTrans.x, y: hTrans.y}];
+             let currentPos = {x: hTrans.x, y: hTrans.y};
+             let hitEnemies = new Set<GameNode>();
+             let currentDmg = dmg;
+             
+             for (let i = 0; i < 3; i++) {
+                let bestEnemy = null;
+                let bestDist = Infinity;
+                for (const e of enemies) {
+                   if (hitEnemies.has(e)) continue;
+                   const et = e.getComponent<Transform>('Transform')!;
+                   const d = Math.hypot(et.x - currentPos.x, et.y - currentPos.y);
+                   if (d < 180 && d < bestDist) { // Chain bounce maximum range
+                      bestDist = d;
+                      bestEnemy = e;
+                   }
+                }
+                
+                if (bestEnemy) {
+                   hitEnemies.add(bestEnemy);
+                   const et = bestEnemy.getComponent<Transform>('Transform')!;
+                   chainPts.push({x: et.x, y: et.y});
+                   currentPos = {x: et.x, y: et.y};
+                   
+                   const th = bestEnemy.getComponent<HealthComp>('HealthComp')!;
+                   th.hp -= currentDmg;
+                   currentDmg *= 0.8; // Reduces dmg on sequentially chained targets
+                   
+                   const ehfx = bestEnemy.getComponent<HfxComp>('HfxComp');
+                   if (ehfx) ehfx.hitLife = 0.2;
+                   this.spawnParticles(et.x, et.y, hDef.color, 3, 2);
+                } else {
+                   break;
+                }
+             }
 
-             if (targets.length > 0) {
-               targets.forEach((t, tIdx) => {
-                  const th = t.getComponent<HealthComp>('HealthComp')!;
-                  th.hp -= dmg * (1 - (tIdx * 0.2)); // Reduces dmg on chained targets
-                  const ehfx = t.getComponent<HfxComp>('HfxComp');
-                  if (ehfx) ehfx.hitLife = 0.2;
-                  
-                  // Spawn visual transient arc
-                  const arc = new GameNode(undefined, 'lightning_arc');
-                  arc.addComponent('Transform', new Transform(hTrans.x, hTrans.y));
-                  // We misuse ProjectileComp simply as a transient data container for the renderer
-                  const pComp = new ProjectileComp();
-                  pComp.life = 0.15;
-                  pComp.color = hDef.color;
-                  pComp.weapon = 'lightning_arc';
-                  const et = t.getComponent<Transform>('Transform')!;
-                  // Store target coordinates explicitly via TargetComp to prevent Physics overlap drifting
-                  const tc = new TargetComp(); tc.x = et.x; tc.y = et.y;
-                  arc.addComponent('TargetComp', tc);
-                  arc.addComponent('ProjectileComp', pComp);
-                  this.root.append(arc);
-                  
-                  this.spawnParticles(et.x, et.y, hDef.color, 3, 2);
-               });
-               pb.cooldown = baseCd / stats.aspd;
-               const shx = heroNode.getComponent<HfxComp>('HfxComp');
-               if (shx) shx.shootLife = 0.2;
+             if (chainPts.length > 1) {
+                // Spawn visual transient arc across all chained points
+                const arc = new GameNode(undefined, 'lightning_arc');
+                arc.addComponent('Transform', new Transform(hTrans.x, hTrans.y));
+                const pComp = new ProjectileComp();
+                pComp.life = 0.15;
+                pComp.color = hDef.color;
+                pComp.weapon = 'lightning_arc';
+                
+                const tc = new TargetComp(); 
+                tc.pts = chainPts;
+                arc.addComponent('TargetComp', tc);
+                arc.addComponent('ProjectileComp', pComp);
+                this.root.append(arc);
+                
+                const shx = heroNode.getComponent<HfxComp>('HfxComp');
+                if (shx) shx.shootLife = 0.2;
              }
           } else {
              // Normal projectile spawning
@@ -666,18 +687,22 @@ export class ArenaEngine {
       const pc = p.getComponent<ProjectileComp>('ProjectileComp')!;
       
       if (pc.weapon === 'lightning_arc') {
-         // Realistic jagged lightning multi-pass
+         // Realistic jagged chain lightning multi-pass
          const tc = p.getComponent<TargetComp>('TargetComp')!;
+         if (!tc.pts || tc.pts.length < 2) continue;
          
-         const drawJagged = (ctx: CanvasRenderingContext2D, width: number, color: string, jitter: number) => {
+         const drawJaggedLine = (ctx: CanvasRenderingContext2D, width: number, color: string, jitter: number) => {
             ctx.beginPath();
-            ctx.moveTo(pt.x, pt.y);
+            ctx.moveTo(tc.pts[0].x, tc.pts[0].y);
             const steps = 6;
-            for (let i = 1; i <= steps; i++) {
-               const rx = (tc.x - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * jitter;
-               const ry = (tc.y - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * jitter;
-               if (i === steps) ctx.lineTo(tc.x, tc.y);
-               else ctx.lineTo(rx, ry);
+            for (let pIdx = 0; pIdx < tc.pts.length - 1; pIdx++) {
+               const p1 = tc.pts[pIdx];
+               const p2 = tc.pts[pIdx+1];
+               for (let i = 1; i <= steps; i++) {
+                  const rx = (p2.x - p1.x) * (i / steps) + p1.x + (Math.random() - 0.5) * jitter;
+                  const ry = (p2.y - p1.y) * (i / steps) + p1.y + (Math.random() - 0.5) * jitter;
+                  ctx.lineTo(rx, ry);
+               }
             }
             ctx.strokeStyle = color;
             ctx.lineWidth = width;
@@ -691,17 +716,17 @@ export class ArenaEngine {
          const alpha = Math.max(0, Math.min(1, pc.life / 0.15));
          this.ctx.globalAlpha = alpha;
          
-         drawJagged(this.ctx, 4, pc.color, 40); // Outer colored plasma string
-         drawJagged(this.ctx, 1.5, '#ffffff', 15); // Inner hot white core
+         drawJaggedLine(this.ctx, 4, pc.color, 40); // Outer colored plasma string
+         drawJaggedLine(this.ctx, 1.5, '#ffffff', 15); // Inner hot white core
          
-         // Impact blooms
-         this.ctx.beginPath();
-         this.ctx.arc(tc.x, tc.y, 30 + Math.random() * 20, 0, Math.PI * 2);
-         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-         this.ctx.fill();
-         this.ctx.beginPath();
-         this.ctx.arc(pt.x, pt.y, 20 + Math.random() * 10, 0, Math.PI * 2);
-         this.ctx.fill();
+         // Impact blooms across all chained hit points
+         for (let i = 1; i < tc.pts.length; i++) {
+            const p2 = tc.pts[i];
+            this.ctx.beginPath();
+            this.ctx.arc(p2.x, p2.y, 20 + Math.random() * 20, 0, Math.PI * 2);
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fill();
+         }
          
          this.ctx.globalAlpha = 1.0;
          continue;

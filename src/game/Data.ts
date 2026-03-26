@@ -7,6 +7,7 @@ export interface CharacterDef {
   color: string;
   shape: 'circle' | 'square' | 'triangle' | 'hexagon' | 'diamond' | 'cross';
   weapon: 'sword' | 'arrow' | 'orb' | 'dagger' | 'lightning' | 'shield' | 'gun';
+  range?: number;
 }
 
 export const CLASS_DATA: Record<string, { setNumbers: number[], mults: { hp: number, dmg: number, aspd: number, areaDmg: number, areaSize: number, def: number, mvspd: number } }> = {
@@ -26,19 +27,19 @@ export const CLASS_DATA: Record<string, { setNumbers: number[], mults: { hp: num
 };
 
 export const CHARACTER_DATA: CharacterDef[] = [
-  { id: 'c1', name: 'Vagrant', classes: ['Psyker', 'Ranger', 'Warrior'], description: 'shoots a projectile', tier: 1, color: '#f1c40f', shape: 'circle', weapon: 'orb' },
-  { id: 'c2', name: 'Swordsman', classes: ['Warrior'], description: 'deals AoE damage', tier: 1, color: '#ff4757', shape: 'square', weapon: 'sword' },
-  { id: 'c3', name: 'Wizard', classes: ['Mage'], description: 'shoots an AoE orb', tier: 2, color: '#1e90ff', shape: 'hexagon', weapon: 'orb' },
-  { id: 'c4', name: 'Archer', classes: ['Ranger'], description: 'shoots a piercing arrow', tier: 1, color: '#2ed573', shape: 'triangle', weapon: 'arrow' },
-  { id: 'c5', name: 'Scout', classes: ['Rogue'], description: 'throws a chaining knife', tier: 1, color: '#eccc68', shape: 'diamond', weapon: 'dagger' },
-  { id: 'c6', name: 'Cleric', classes: ['Healer'], description: 'heals allies periodically', tier: 2, color: '#ffffff', shape: 'cross', weapon: 'orb' },
-  { id: 'c7', name: 'Outlaw', classes: ['Warrior', 'Rogue'], description: 'throws a fan of knives', tier: 2, color: '#ff6b81', shape: 'diamond', weapon: 'dagger' },
-  { id: 'c8', name: 'Blade', classes: ['Warrior', 'Nuker'], description: 'throws multiple AoE blades', tier: 3, color: '#ff7f50', shape: 'square', weapon: 'sword' },
-  { id: 'c9', name: 'Elementor', classes: ['Mage', 'Nuker'], description: 'deals massive random AoE', tier: 3, color: '#7bed9f', shape: 'hexagon', weapon: 'orb' },
-  { id: 'c10', name: 'Saboteur', classes: ['Rogue', 'Conjurer', 'Nuker'], description: 'calls exploding saboteurs', tier: 4, color: '#9b59b6', shape: 'diamond', weapon: 'orb' },
-  { id: 'c11', name: 'Stormweaver', classes: ['Enchanter'], description: 'infuses projectiles with lightning', tier: 2, color: '#70a1ff', shape: 'hexagon', weapon: 'lightning' },
-  { id: 'c12', name: 'Sage', classes: ['Nuker'], description: 'shoots slow pulling projectile', tier: 3, color: '#ffffff', shape: 'hexagon', weapon: 'orb' },
-  { id: 'c13', name: 'Squire', classes: ['Warrior', 'Enchanter'], description: 'pumps nearby allies defense/damage', tier: 2, color: '#fbed9f', shape: 'square', weapon: 'shield' },
+  { id: 'c1', name: 'Vagrant', classes: ['Psyker', 'Ranger', 'Warrior'], description: 'shoots a projectile', tier: 1, color: '#f1c40f', shape: 'circle', weapon: 'orb', range: 250 },
+  { id: 'c2', name: 'Swordsman', classes: ['Warrior'], description: 'deals AoE damage', tier: 1, color: '#ff4757', shape: 'square', weapon: 'sword', range: 100 },
+  { id: 'c3', name: 'Wizard', classes: ['Mage'], description: 'shoots an AoE orb', tier: 2, color: '#1e90ff', shape: 'hexagon', weapon: 'orb', range: 300 },
+  { id: 'c4', name: 'Archer', classes: ['Ranger'], description: 'shoots a piercing arrow', tier: 1, color: '#2ed573', shape: 'triangle', weapon: 'arrow', range: 450 },
+  { id: 'c5', name: 'Scout', classes: ['Rogue'], description: 'throws a chaining knife', tier: 1, color: '#eccc68', shape: 'diamond', weapon: 'dagger', range: 180 },
+  { id: 'c6', name: 'Cleric', classes: ['Healer'], description: 'heals allies periodically', tier: 2, color: '#ffffff', shape: 'cross', weapon: 'orb', range: 350 },
+  { id: 'c7', name: 'Outlaw', classes: ['Warrior', 'Rogue'], description: 'throws a fan of knives', tier: 2, color: '#ff6b81', shape: 'diamond', weapon: 'dagger', range: 150 },
+  { id: 'c8', name: 'Blade', classes: ['Warrior', 'Nuker'], description: 'throws multiple AoE blades', tier: 3, color: '#ff7f50', shape: 'square', weapon: 'sword', range: 120 },
+  { id: 'c9', name: 'Elementor', classes: ['Mage', 'Nuker'], description: 'deals massive random AoE', tier: 3, color: '#7bed9f', shape: 'hexagon', weapon: 'orb', range: 350 },
+  { id: 'c10', name: 'Saboteur', classes: ['Rogue', 'Conjurer', 'Nuker'], description: 'calls exploding saboteurs', tier: 4, color: '#9b59b6', shape: 'diamond', weapon: 'orb', range: 250 },
+  { id: 'c11', name: 'Stormweaver', classes: ['Enchanter'], description: 'infuses projectiles with lightning', tier: 2, color: '#70a1ff', shape: 'hexagon', weapon: 'lightning', range: 250 },
+  { id: 'c12', name: 'Sage', classes: ['Nuker'], description: 'shoots slow pulling projectile', tier: 3, color: '#ffffff', shape: 'hexagon', weapon: 'orb', range: 300 },
+  { id: 'c13', name: 'Squire', classes: ['Warrior', 'Enchanter'], description: 'pumps nearby allies defense/damage', tier: 2, color: '#fbed9f', shape: 'square', weapon: 'shield', range: 100 },
 ];
 // Simplified subset of characters to maintain prototype velocity while keeping deep architecture.
 

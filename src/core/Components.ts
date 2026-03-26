@@ -78,5 +78,6 @@ export class SnakeHistoryComp {
 export class TargetComp {
   x: number = 0;
   y: number = 0;
+  pts: {x: number, y: number}[] = [];
 }
 
