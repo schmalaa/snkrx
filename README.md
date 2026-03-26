@@ -1,6 +1,6 @@
-# SNKRX Web Port
+# Synapse Snake (SNKRX Engine Port)
 
-A high-fidelity arcade shooter inspired by: [SNKRX](https://github.com/a327ex/SNKRX), built with React Cart ECS and HTML5 Canvas.
+A high-fidelity arcade survival auto-battler inspired by: [SNKRX](https://github.com/a327ex/SNKRX), completely rebuilt with a custom React + ECS Render Engine on HTML5 Canvas.
 
 ## 🌟 Huge Shoutout and Inspiration
 This project is a direct tribute to **[a327ex/SNKRX](https://github.com/a327ex/SNKRX)**, a masterclass in minimalist game design, deep synergies, and "juicy" combat feel. 

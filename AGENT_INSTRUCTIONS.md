@@ -1,6 +1,6 @@
-# SNKRX Web Port - Agent Instructions
+# Synapse Snake - Agent Instructions
 
-Welcome to the SNKRX Web Port repository. If you are an AI agent analyzing or modifying this codebase, STRICTLY adhere to the following architectural guidelines to prevent breaking the engine or violating the project's design philosophy.
+Welcome to the Synapse Snake repository. If you are an AI agent analyzing or modifying this codebase, STRICTLY adhere to the following architectural guidelines to prevent breaking the engine or violating the project's design philosophy.
 
 ## 1. Core Architecture (React + Custom ECS)
 This project is divided into two strict boundaries:
@@ -24,8 +24,9 @@ Adding new content does not require writing new UI/Rendering blocks.
 - **Weapons**: Handled via `drawShape()` and internal rendering conditionals in `Arena.ts` based on the `weapon` string (e.g. `'sword'`, `'orb'`, `'lightning'`). Do not attempt to import `.png` files.
 - **Juice**: Visual flair matters heavily. If you add a new weapon or collision, ensure it utilizes `CameraSystem.shake()` and triggers `HfxComp` (hit flashing) or emits particles via `spawnParticles`.
 
-## 5. Difficulty and Scaling
+## 5. Difficulty, Economy, and Auto-Chess Scaling
 - **Survival Mechanics**: The game relies on progressive dynamic spawning (`Arena.ts` -> `roundTimeLeft`). You must clear the timer to win the round.
+- **Auto-Chess Economy**: Players start with a hard limit of **3 Max Snake Capacity** and **3 Gold**. Winning rounds nets heavily nerfed gold (`2 + round/4`). The player MUST dynamically purchase Capacity Upgrades inside the Tavern ("The Armory") to increase snake sizes. Do not arbitrarily remove `maxSnakeLength` limits.
 - **Exponential Math**: Enemy scaling `(Health, Speed)` utilizes exponential compounding curves (`Math.pow(1.15, round)`). If adjusting difficulty, tune the exponential base, do not use flat addition.
 
 ## 6. TypeScript Compilation
