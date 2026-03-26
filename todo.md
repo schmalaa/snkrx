@@ -16,4 +16,4 @@
 
 - [x] Investigate bug with lightning. The top left corner of the screen is constantly being hit by lightning or something... its a blue circle in the top left over and over.
 - [x] Create a seperate page explaining the characteristics of each hero and class. 
-- ![lots of alignment issues](image.png)
+- [x] ![lots of alignment issues](image.png)

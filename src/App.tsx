@@ -290,7 +290,9 @@ function App() {
                 </div>
                ))}
              </div>
-             <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
+             <div style={{ textAlign: 'center', margin: '3rem 0 2rem 0' }}>
+               <button className="btn" style={{ padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -426,11 +428,11 @@ function App() {
             
             <div className="card-container" style={{ marginTop: '2rem', maxWidth: '1000px', display: 'flex', gap: '2rem' }}>
               {itemChoices.map((item) => (
-                <div key={item.id} className="hero-card" style={{ borderColor: 'var(--accent-secondary)', background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(200, 50, 100, 0.1) 100%)', padding: '2rem', flex: 1 }}>
-                  <div style={{ textAlign: 'center' }}>
+                <div key={item.id} className="hero-card" style={{ borderColor: 'var(--accent-secondary)', background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(200, 50, 100, 0.1) 100%)', padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column', height: 'auto', minHeight: '400px' }}>
+                  <div style={{ textAlign: 'center', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💎</div>
                     <div className="hero-name" style={{ color: 'var(--accent-secondary)', fontSize: '1.8rem' }}>{item.name}</div>
-                    <div className="hero-description" style={{ marginTop: '1.5rem', color: '#ddd', fontSize: '1.1rem', lineHeight: '1.5' }}>{item.description}</div>
+                    <div className="hero-description" style={{ marginTop: '1.5rem', marginBottom: '1.5rem', color: '#ddd', fontSize: '1.1rem', lineHeight: '1.5', flexGrow: 1 }}>{item.description}</div>
                   </div>
                   <button 
                     className="btn" 
