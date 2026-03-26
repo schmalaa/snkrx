@@ -353,6 +353,7 @@ export class ArenaEngine {
                 tc.pts = chainPts;
                 arc.addComponent('TargetComp', tc);
                 arc.addComponent('ProjectileComp', pComp);
+                arc.addComponent('Physics', new Physics()); // Dummy to satisfy the ECS lifetime garbage collector
                 this.root.append(arc);
                 
                 const shx = heroNode.getComponent<HfxComp>('HfxComp');
