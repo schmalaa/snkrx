@@ -34,6 +34,7 @@ export class EnemyBrain {
   isSuperBoss: boolean = false;
   color: string = '';
   speedMultiplier: number = 1;
+  hitCooldown: number = 0;
 }
 
 export class ProjectileComp {
