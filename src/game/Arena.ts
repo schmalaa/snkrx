@@ -651,9 +651,10 @@ export class ArenaEngine {
        
        if (b.isSuperBoss) {
           this.ctx.beginPath();
-          this.ctx.shadowBlur = Math.random() > 0.5 ? 20 : 10;
+          this.ctx.shadowBlur = 15 + Math.sin(performance.now() / 150) * 10;
           this.ctx.shadowColor = b.color;
-          this.drawShape(this.ctx, t.x, t.y, col.radius, 'star');
+          const pulseRadius = col.radius + Math.sin(performance.now() / 100) * 2;
+          this.drawShape(this.ctx, t.x, t.y, pulseRadius, 'star');
           this.ctx.fill();
           if (ex && ex.hitLife <= 0) {
              this.ctx.strokeStyle = '#fff';
