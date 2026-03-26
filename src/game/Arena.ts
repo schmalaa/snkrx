@@ -159,7 +159,7 @@ export class ArenaEngine {
     
     const isBig = Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
     let hpScale = Math.pow(1.15, this.round);
-    let baseHp = isBig ? 150 : 30;
+    let baseHp = isBig ? 450 : 80;
     baseHp *= hpScale;
     
     if (this.inventory.some(i => i.effectId === 'intimidation')) {
