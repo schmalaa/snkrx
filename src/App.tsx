@@ -47,6 +47,7 @@ function App() {
   const [shopItems, setShopItems] = useState<CharacterDef[]>([]);
   const [inventory, setInventory] = useState<ItemDef[]>([]);
   const [itemChoices, setItemChoices] = useState<ItemDef[]>([]);
+  const [showHelp, setShowHelp] = useState(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArenaEngine | null>(null);
@@ -215,15 +216,40 @@ function App() {
             <h1 className="title" style={{ fontSize: '5rem' }}>SNKRX WEB</h1>
             <p style={{ color: 'var(--text-muted)', marginBottom: '3rem', fontSize: '1.2rem', letterSpacing: '0.2rem' }}>A WEB APPLICATION PORT</p>
             {score > 0 && <p style={{ color: 'var(--accent-secondary)', marginBottom: '2rem' }}>Latest Score: {score}</p>}
-            <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
-              setSnake([{ ...CHARACTER_DATA[0], id: 'h1_initial' }]); // Start with Vagrant
-              setGold(10);
-              setRound(1);
-              generateShop();
-              setPhase('SHOP');
-            }}>
-              PLAY GAME
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
+                setSnake([{ ...CHARACTER_DATA[0], id: 'h1_initial' }]); // Start with Vagrant
+                setGold(10);
+                setRound(1);
+                setInventory([]);
+                generateShop();
+                setPhase('SHOP');
+              }}>
+                PLAY GAME
+              </button>
+              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: 'transparent', border: '1px solid #555' }} onClick={() => setShowHelp(true)}>
+                HOW TO PLAY
+              </button>
+            </div>
+            
+            <div style={{ position: 'absolute', bottom: '1.5rem', width: '100%', left: 0, textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
+              Made with ❤️ by <a href="https://alexschmaltz.com" target="_blank" rel="noreferrer" style={{color: 'var(--accent)', textDecoration: 'none'}}>Alex</a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showHelp && (
+          <motion.div className="overlay glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 100 }}>
+             <h2 className="title" style={{ fontSize: '3rem', marginBottom: '2rem' }}>HOW TO PLAY</h2>
+             <div style={{ textAlign: 'left', maxWidth: '600px', fontSize: '1.2rem', lineHeight: '1.8', color: '#ddd' }}>
+               <p><strong>1. Build Your Snake:</strong> Use gold in the Tavern to hire specialized heroes. Heroes have unique weapons and classes.</p>
+               <p><strong>2. Class Synergies:</strong> Hiring multiple heroes of the SAME class unlocks massive passive buffs (e.g. 3 Warriors gain +50% damage).</p>
+               <p><strong>3. Combat:</strong> Steer your snake using the mouse. Heroes automatically attack nearby enemies based on distance and cooldowns.</p>
+               <p><strong>4. Relics:</strong> Defeat the Elite Boss every 3 rounds to draft permanent passive Relic upgrades that alter your run!</p>
+             </div>
+             <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setShowHelp(false)}>BACK</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -248,6 +274,13 @@ function App() {
             <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
               RECRUIT HEROES FOR YOUR SNAKE
             </p>
+
+            <div className="tier-legend" style={{ display: 'flex', gap: '2rem', justifyContent: 'center', marginBottom: '1.5rem', color: '#aaa', fontSize: '0.9rem', background: 'rgba(0,0,0,0.4)', padding: '0.5rem 2rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.05)' }}>
+               <span>Cost 1: ⭐ Common</span>
+               <span>Cost 2: ⭐⭐ Uncommon</span>
+               <span>Cost 3: ⭐⭐⭐ Rare</span>
+               <span>Cost 4: ⭐⭐⭐⭐ Epic</span>
+            </div>
 
             <div className="hero-grid">
               {shopItems.map((item, idx) => (
@@ -341,24 +374,26 @@ function App() {
         {/* ITEM SELECTION PHASE */}
         {phase === 'ITEM_SELECT' && (
           <motion.div 
-            className="overlay-panel"
+            className="overlay glass-panel"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             key="item-modal"
+            style={{ background: 'rgba(20, 0, 10, 0.95)', border: '2px solid var(--accent-secondary)' }}
           >
-            <h2 className="title" style={{ color: 'var(--accent-secondary)' }}>BOSS DEFEATED</h2>
-            <p style={{ color: 'var(--text-muted)' }}>Choose a passive item relic to permanently augment your snake.</p>
+            <h2 className="title" style={{ color: 'var(--accent-secondary)', fontSize: '4rem', textShadow: '0 0 30px var(--accent-secondary)' }}>BOSS DEFEATED</h2>
+            <p style={{ color: '#aaa', fontSize: '1.2rem', marginBottom: '1rem' }}>You survived Round {round}! Choose a passive relic to permanently augment your snake.</p>
             
-            <div className="card-container" style={{ marginTop: '2rem' }}>
+            <div className="card-container" style={{ marginTop: '2rem', maxWidth: '1000px', display: 'flex', gap: '2rem' }}>
               {itemChoices.map((item) => (
-                <div key={item.id} className="hero-card" style={{ borderColor: 'var(--accent-secondary)' }}>
+                <div key={item.id} className="hero-card" style={{ borderColor: 'var(--accent-secondary)', background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(200, 50, 100, 0.1) 100%)', padding: '2rem', flex: 1 }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div className="hero-name" style={{ color: 'var(--accent-secondary)' }}>{item.name}</div>
-                    <div className="hero-description" style={{ marginTop: '1rem' }}>{item.description}</div>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💎</div>
+                    <div className="hero-name" style={{ color: 'var(--accent-secondary)', fontSize: '1.8rem' }}>{item.name}</div>
+                    <div className="hero-description" style={{ marginTop: '1.5rem', color: '#ddd', fontSize: '1.1rem', lineHeight: '1.5' }}>{item.description}</div>
                   </div>
                   <button 
                     className="btn" 
-                    style={{ width: '100%', marginTop: 'auto', backgroundColor: 'var(--accent-secondary)' }}
+                    style={{ width: '100%', marginTop: '3rem', backgroundColor: 'var(--accent-secondary)', color: '#000', fontWeight: 800, padding: '1rem' }}
                     onClick={() => {
                        setInventory(prev => [...prev, item]);
                        setRound(r => r + 1);
@@ -367,11 +402,13 @@ function App() {
                        setPhase('SHOP');
                     }}
                   >
-                    SELECT
+                    SELECT RELIC
                   </button>
                 </div>
               ))}
             </div>
+            
+            <InventoryDisplay inventory={inventory} />
           </motion.div>
         )}
 
@@ -379,5 +416,21 @@ function App() {
     </div>
   );
 }
+
+const InventoryDisplay = ({ inventory }: { inventory: ItemDef[] }) => {
+  if (inventory.length === 0) return null;
+  return (
+    <div style={{ marginTop: '3rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+       <h3 style={{ color: '#888', marginBottom: '1rem' }}>ACTIVE RELICS</h3>
+       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+         {inventory.map((item, i) => (
+            <div key={i} title={item.description} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '0.5rem 1rem', borderRadius: '50px', fontSize: '0.9rem', color: 'var(--accent-secondary)' }}>
+              💎 {item.name}
+            </div>
+         ))}
+       </div>
+    </div>
+  );
+};
 
 export default App;

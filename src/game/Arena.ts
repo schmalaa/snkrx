@@ -105,7 +105,7 @@ export class ArenaEngine {
     });
 
     window.addEventListener('mousemove', this.handleMouseMove);
-    const enemyCount = 10 + this.round * 5;
+    const enemyCount = this.round === 1 ? 5 : this.round === 2 ? 8 : 10 + this.round * 3;
     for (let i = 0; i < enemyCount; i++) this.spawnEnemy();
   }
 
@@ -133,8 +133,9 @@ export class ArenaEngine {
     node.addComponent('Transform', new Transform(x, y));
     
     const isBig = Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
+    let hpScale = 0.5 + (this.round * 0.2); // R1: 0.7x, R5: 1.5x, R10: 2.5x
     let baseHp = isBig ? 100 : 30;
-    baseHp *= (1 + this.round * 0.4);
+    baseHp *= hpScale;
     
     if (this.inventory.some(i => i.effectId === 'intimidation')) {
       baseHp *= 0.8; // -20% max HP
@@ -145,8 +146,7 @@ export class ArenaEngine {
     const brain = new EnemyBrain();
     brain.isBoss = isBig;
     brain.color = isBig ? 'hsl(330, 100%, 50%)' : 'hsl(350, 100%, 60%)';
-    brain.speedMultiplier = isBig ? 1 : 2;
-    brain.speedMultiplier *= (1 + this.round * 0.1);
+    brain.speedMultiplier = (isBig ? 0.7 : 1.2) * (0.8 + this.round * 0.05);
     node.addComponent('EnemyBrain', brain);
     
     node.addComponent('Collider', new Collider(isBig ? 24 : 12));
@@ -275,28 +275,67 @@ export class ArenaEngine {
           if (hDef.classes.includes('Mage') && this.classCounts['Mage'] >= 3) dmg *= 1.5;
           if (hDef.classes.includes('Enchanter') && this.classCounts['Enchanter'] >= 2) dmg *= 1.25;
 
-          const proj = new GameNode(undefined, 'projectile');
-          const pTrans = new Transform(hTrans.x, hTrans.y);
-          pTrans.rotation = angle;
-          proj.addComponent('Transform', pTrans);
-          
-          const pComp = new ProjectileComp();
-          pComp.damage = dmg;
-          pComp.color = hDef.color;
-          pComp.type = hDef.type || 'normal';
-          pComp.weapon = hDef.weapon || 'orb';
-          proj.addComponent('ProjectileComp', pComp);
-          
-          const phys = new Physics();
-          phys.vx = Math.cos(angle) * 500;
-          phys.vy = Math.sin(angle) * 500;
-          phys.friction = 1.0;
-          proj.addComponent('Physics', phys);
-          
-          this.root.append(proj);
-          const shx = heroNode.getComponent<HfxComp>('HfxComp');
-          if (shx) shx.shootLife = 0.1;
-          this.spawnParticles(hTrans.x, hTrans.y, hDef.color, 1, 3);
+          if (hDef.weapon === 'lightning') {
+             // Instant chain lightning effect
+             const targets = enemies.filter(e => {
+               const et = e.getComponent<Transform>('Transform')!;
+               return Math.hypot(et.x - hTrans.x, et.y - hTrans.y) < 250;
+             }).slice(0, 3); // chain up to 3 targets
+
+             if (targets.length > 0) {
+               targets.forEach((t, tIdx) => {
+                  const th = t.getComponent<HealthComp>('HealthComp')!;
+                  th.hp -= dmg * (1 - (tIdx * 0.2)); // Reduces dmg on chained targets
+                  const ehfx = t.getComponent<HfxComp>('HfxComp');
+                  if (ehfx) ehfx.hitLife = 0.2;
+                  
+                  // Spawn visual transient arc
+                  const arc = new GameNode(undefined, 'lightning_arc');
+                  arc.addComponent('Transform', new Transform(hTrans.x, hTrans.y));
+                  // We misuse ProjectileComp simply as a transient data container for the renderer
+                  const pComp = new ProjectileComp();
+                  pComp.life = 0.15;
+                  pComp.color = hDef.color;
+                  pComp.weapon = 'lightning_arc';
+                  const et = t.getComponent<Transform>('Transform')!;
+                  // Store target coordinates in velocity to read in render phase
+                  const phys = new Physics(); phys.vx = et.x; phys.vy = et.y;
+                  arc.addComponent('Physics', phys);
+                  arc.addComponent('ProjectileComp', pComp);
+                  this.root.append(arc);
+                  
+                  this.spawnParticles(et.x, et.y, hDef.color, 3, 2);
+               });
+               pb.cooldown = baseCd / stats.aspd;
+               const shx = heroNode.getComponent<HfxComp>('HfxComp');
+               if (shx) shx.shootLife = 0.2;
+             }
+          } else {
+             // Normal projectile spawning
+             const proj = new GameNode(undefined, 'projectile');
+             const pTrans = new Transform(hTrans.x, hTrans.y);
+             pTrans.rotation = angle;
+             proj.addComponent('Transform', pTrans);
+             
+             const pComp = new ProjectileComp();
+             pComp.damage = dmg;
+             pComp.color = hDef.color;
+             pComp.type = hDef.type || 'normal';
+             pComp.weapon = hDef.weapon || 'orb';
+             pComp.life = 5;
+             proj.addComponent('ProjectileComp', pComp);
+             
+             const phys = new Physics();
+             phys.vx = Math.cos(angle) * 500;
+             phys.vy = Math.sin(angle) * 500;
+             phys.friction = 1.0;
+             proj.addComponent('Physics', phys);
+             
+             this.root.append(proj);
+             const shx = heroNode.getComponent<HfxComp>('HfxComp');
+             if (shx) shx.shootLife = 0.1;
+             this.spawnParticles(hTrans.x, hTrans.y, hDef.color, 1, 3);
+          }
         }
       }
     }
@@ -520,6 +559,28 @@ export class ArenaEngine {
       const pt = p.getComponent<Transform>('Transform')!;
       const pc = p.getComponent<ProjectileComp>('ProjectileComp')!;
       
+      if (pc.weapon === 'lightning_arc') {
+         // Custom render for the instant lightning bolts
+         const phys = p.getComponent<Physics>('Physics')!;
+         this.ctx.beginPath();
+         this.ctx.moveTo(pt.x, pt.y);
+         // draw jagged line
+         const steps = 4;
+         for (let i = 1; i <= steps; i++) {
+            const rx = (phys.vx - pt.x) * (i / steps) + pt.x + (Math.random() - 0.5) * 20;
+            const ry = (phys.vy - pt.y) * (i / steps) + pt.y + (Math.random() - 0.5) * 20;
+            if (i === steps) this.ctx.lineTo(phys.vx, phys.vy);
+            else this.ctx.lineTo(rx, ry);
+         }
+         this.ctx.strokeStyle = pc.color;
+         this.ctx.lineWidth = 3;
+         this.ctx.shadowBlur = 10;
+         this.ctx.shadowColor = pc.color;
+         this.ctx.stroke();
+         this.ctx.shadowBlur = 0;
+         continue;
+      }
+
       this.ctx.save();
       this.ctx.translate(pt.x, pt.y);
       this.ctx.rotate(pt.rotation);

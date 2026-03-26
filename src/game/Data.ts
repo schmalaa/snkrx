@@ -26,7 +26,7 @@ export const CLASS_DATA: Record<string, { setNumbers: number[], mults: { hp: num
 };
 
 export const CHARACTER_DATA: CharacterDef[] = [
-  { id: 'c1', name: 'Vagrant', classes: ['Psyker', 'Ranger', 'Warrior'], description: 'shoots a projectile', tier: 1, color: '#f1c40f', shape: 'circle', weapon: 'sword' },
+  { id: 'c1', name: 'Vagrant', classes: ['Psyker', 'Ranger', 'Warrior'], description: 'shoots a projectile', tier: 1, color: '#f1c40f', shape: 'circle', weapon: 'orb' },
   { id: 'c2', name: 'Swordsman', classes: ['Warrior'], description: 'deals AoE damage', tier: 1, color: '#ff4757', shape: 'square', weapon: 'sword' },
   { id: 'c3', name: 'Wizard', classes: ['Mage'], description: 'shoots an AoE orb', tier: 2, color: '#1e90ff', shape: 'hexagon', weapon: 'orb' },
   { id: 'c4', name: 'Archer', classes: ['Ranger'], description: 'shoots a piercing arrow', tier: 1, color: '#2ed573', shape: 'triangle', weapon: 'arrow' },
