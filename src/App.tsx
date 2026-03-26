@@ -227,7 +227,7 @@ function App() {
               }}>
                 PLAY GAME
               </button>
-              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: 'transparent', border: '1px solid #555' }} onClick={() => setShowHelp(true)}>
+              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setShowHelp(true)}>
                 HOW TO PLAY
               </button>
             </div>
