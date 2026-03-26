@@ -1,73 +1,33 @@
-# React + TypeScript + Vite
+# SNKRX Web Port
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-fidelity arcade shooter inspired by: [SNKRX](https://github.com/a327ex/SNKRX), built with React Cart ECS and HTML5 Canvas.
 
-Currently, two official plugins are available:
+## 🌟 Huge Shoutout and Inspiration
+This project is a direct tribute to **[a327ex/SNKRX](https://github.com/a327ex/SNKRX)**, a masterclass in minimalist game design, deep synergies, and "juicy" combat feel. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+I highly recommend checking out [the original repository](https://github.com/a327ex/SNKRX) and playing the phenomenal game on Steam.
 
-## React Compiler
+## 🛠️ Technology Stack
+- **Library**: React 18
+- **Bundler**: Vite
+- **Language**: TypeScript
+- **Rendering Engine**: Custom Entity-Component-System (ECS) running on the `HTML5 Canvas API`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Getting Started
 
-## Expanding the ESLint configuration
+```bash
+# Install the web port dependencies
+npm install
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run the development server locally at http://localhost:5173
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🏗️ Deployment (Vercel)
+This project is structured as a standard SPA, ready to be deployed instantly on [Vercel](https://vercel.com):
+1. Import your GitHub repository to Vercel.
+2. Set the framework preset to **Vite**.
+3. Leave the root directory as `/`. 
+4. Build command: `npm run build`
+5. Output directory: `dist`
+6. Click **Deploy**.
