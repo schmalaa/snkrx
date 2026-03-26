@@ -113,7 +113,7 @@ function App() {
       setPhase('ITEM_SELECT');
     } else {
       setRound(r => r + 1);
-      setGold(g => g + 2 + Math.floor(round / 4));
+      setGold(g => g + 4 + Math.floor(round / 3));
       generateShop();
       setPhase('SHOP');
     }
@@ -354,17 +354,17 @@ function App() {
               ))}
             </div>
             
-            <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.5)', padding: '1.5rem', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #444', maxWidth: '800px', margin: '2rem auto 0 auto' }}>
+            <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.5)', padding: '1.5rem', borderRadius: '15px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #444', maxWidth: '800px', margin: '2rem auto 0 auto' }}>
                <div style={{ textAlign: 'left' }}>
                   <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff' }}>Snake Capacity</h3>
                   <p style={{ margin: '0.5rem 0 0 0', color: '#aaa', fontSize: '1.1rem' }}>Party Size: {snake.length} / {maxSnakeLength}</p>
                </div>
                <button 
                  className="btn"
-                 disabled={gold < (5 + (maxSnakeLength - 3) * 5)}
+                 disabled={gold < (3 + (maxSnakeLength - 3) * 3)}
                  style={{
-                    opacity: gold < (5 + (maxSnakeLength - 3) * 5) ? 0.5 : 1,
-                    cursor: gold < (5 + (maxSnakeLength - 3) * 5) ? 'not-allowed' : 'pointer',
+                    opacity: gold < (3 + (maxSnakeLength - 3) * 3) ? 0.5 : 1,
+                    cursor: gold < (3 + (maxSnakeLength - 3) * 3) ? 'not-allowed' : 'pointer',
                     padding: '1.2rem 2rem',
                     display: 'flex',
                     flexDirection: 'column',
@@ -374,12 +374,12 @@ function App() {
                     lineHeight: '1'
                  }}
                  onClick={() => {
-                    setGold(g => g - (5 + (maxSnakeLength - 3) * 5));
+                    setGold(g => g - (3 + (maxSnakeLength - 3) * 3));
                     setMaxSnakeLength(m => m + 1);
                  }}
                >
                  <span>UPGRADE +1</span>
-                 <span style={{fontSize: '1rem', color: 'var(--accent)'}}>💰 {5 + (maxSnakeLength - 3) * 5} Gold</span>
+                 <span style={{fontSize: '1rem', color: 'var(--accent)'}}>💰 {3 + (maxSnakeLength - 3) * 3} Gold</span>
                </button>
             </div>
 

@@ -128,10 +128,10 @@ export class ArenaEngine {
     
     // Compute exact seconds required to survive
     this.roundTimeLeft = 15 + this.round * 2;
-    this.spawnInterval = Math.max(0.3, 1.5 - this.round * 0.05);
+    this.spawnInterval = Math.max(0.15, 1.0 - this.round * 0.1);
     
     // Seed initial aggressive wave
-    for (let i = 0; i < 3; i++) this.spawnEnemy();
+    for (let i = 0; i < 5 + this.round; i++) this.spawnEnemy();
   }
 
   destroy() {

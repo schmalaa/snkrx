@@ -32,3 +32,8 @@
 - [x] Add a techy, related image/texture to homepage background. It would be cool if it has a preview of the game in the background or something.
 - [x] Alignment of snake capacity "upgrade" button is off. 
 - [x] Let's call Tavern "The Armory"
+
+- [x] Snake Capacity button needs margins. It is touching "Snake Capacity".
+
+### User Feedback
+- [x] So far, I made it round 9 and it was way too easy. It was boring - not enough action. Very slow gameplay and repetitive. You are stuck with the same 3 heroes for way too long..
