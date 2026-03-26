@@ -53,7 +53,7 @@ export class CameraSystem extends System {
     setTimeout(() => this.shakeIntensity = 0, duration * 1000);
   }
   
-  update(dt: number) {
+  update() {
     if (this.shakeIntensity > 0) {
       this.shakeIntensity *= 0.9;
     }
