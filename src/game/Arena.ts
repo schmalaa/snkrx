@@ -151,7 +151,7 @@ export class ArenaEngine {
     this.mouseY = e.clientY - rect.top;
   }
 
-  spawnEnemy(isSuperBoss: boolean = false) {
+  spawnEnemy(isSuperBoss: boolean = false, overrideType?: 'basic'|'fast'|'swarmer'|'tank') {
     const node = new GameNode(undefined, 'enemy');
     const side = Math.floor(Math.random() * 4);
     let x = 0, y = 0;
@@ -163,26 +163,59 @@ export class ArenaEngine {
     node.addComponent('Transform', new Transform(x, y));
     
     const isBig = isSuperBoss || Math.random() > 0.8 || (this.round >= 3 && Math.random() > 0.9);
-    let hpScale = Math.pow(1.15, this.round);
-    let baseHp = isSuperBoss ? 2500 : (isBig ? 450 : 80);
-    baseHp *= hpScale;
     
-    if (this.inventory.some(i => i.effectId === 'intimidation')) {
-      baseHp *= 0.8; // -20% max HP
+    let eType: 'basic' | 'fast' | 'tank' | 'swarmer' = overrideType || 'basic';
+    if (!overrideType && !isSuperBoss && !isBig) {
+       const roll = Math.random();
+       if (this.round >= 7 && roll < 0.25) eType = 'swarmer';
+       else if (this.round >= 5 && roll < 0.4) eType = 'tank';
+       else if (this.round >= 3 && roll < 0.6) eType = 'fast';
+    } else if (!overrideType && isBig && !isSuperBoss) {
+       eType = 'tank';
     }
+
+    let hpScale = Math.pow(1.15, this.round);
+    let baseHp = 80;
+    let speedMult = 1.2;
+    let colRadius = 12;
+    let color = 'hsl(350, 100%, 60%)';
+
+    if (isSuperBoss) {
+      baseHp = 3500; speedMult = 0.95; colRadius = 45; color = '#ff0033';
+    } else if (isBig) {
+      baseHp = 450; speedMult = 0.7; colRadius = 24; color = 'hsl(330, 100%, 50%)';
+    } else {
+      if (eType === 'fast') {
+        baseHp = 45; speedMult = 1.8; colRadius = 8; color = '#00d2ff';
+      } else if (eType === 'tank') {
+        baseHp = 250; speedMult = 0.8; colRadius = 18; color = '#ff9f43';
+      } else if (eType === 'swarmer') {
+        baseHp = 30; speedMult = 1.6; colRadius = 7; color = '#1dd1a1';
+      }
+    }
+    
+    baseHp *= hpScale;
+    if (this.inventory.some(i => i.effectId === 'intimidation')) baseHp *= 0.8;
     
     node.addComponent('HealthComp', new HealthComp(baseHp));
     
     const brain = new EnemyBrain();
     brain.isBoss = isBig;
     brain.isSuperBoss = isSuperBoss;
-    brain.color = isSuperBoss ? '#ff0033' : (isBig ? 'hsl(330, 100%, 50%)' : 'hsl(350, 100%, 60%)');
-    brain.speedMultiplier = (isSuperBoss ? 0.9 : (isBig ? 0.7 : 1.2)) * Math.pow(1.04, this.round);
+    brain.color = color;
+    brain.speedMultiplier = speedMult * Math.pow(1.04, this.round);
+    brain.enemyType = eType;
     node.addComponent('EnemyBrain', brain);
     
-    node.addComponent('Collider', new Collider(isSuperBoss ? 45 : (isBig ? 24 : 12)));
+    node.addComponent('Collider', new Collider(colRadius));
     node.addComponent('HfxComp', new HfxComp());
     this.root.append(node);
+
+    if (!overrideType && eType === 'swarmer' && !isSuperBoss && !isBig) {
+       // spawn 2 friends nearby immediately
+       this.spawnEnemy(false, 'swarmer');
+       this.spawnEnemy(false, 'swarmer');
+    }
   }
 
   start() {
@@ -577,7 +610,7 @@ export class ArenaEngine {
       ctx.lineTo(x - radius, y);
       ctx.closePath();
     } else if (shape === 'star') {
-      const spikes = 5;
+      const spikes = 12;
       const step = Math.PI / spikes;
       let rot = Math.PI / 2 * 3;
       ctx.moveTo(x, y - radius);
@@ -728,8 +761,19 @@ export class ArenaEngine {
              this.ctx.stroke();
           }
           this.ctx.shadowBlur = 0;
-       } else if (b.isBoss) {
+       } else if (b.enemyType === 'tank' || b.isBoss) {
           this.ctx.fillRect(t.x - col.radius, t.y - col.radius, col.radius*2, col.radius*2);
+          if (ex && ex.hitLife <= 0) {
+            this.ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(t.x - col.radius, t.y - col.radius, col.radius*2, col.radius*2);
+          }
+       } else if (b.enemyType === 'fast') {
+          this.drawShape(this.ctx, t.x, t.y, col.radius * 1.5, 'diamond');
+          this.ctx.fill();
+       } else if (b.enemyType === 'swarmer') {
+          this.drawShape(this.ctx, t.x, t.y, col.radius, 'circle');
+          this.ctx.fill();
        } else {
           this.ctx.beginPath();
           const angle = Math.atan2(this.mouseY - t.y, this.mouseX - t.x);

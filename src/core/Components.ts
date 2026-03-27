@@ -35,6 +35,7 @@ export class EnemyBrain {
   color: string = '';
   speedMultiplier: number = 1;
   hitCooldown: number = 0;
+  enemyType: 'basic' | 'fast' | 'tank' | 'swarmer' = 'basic';
 }
 
 export class ProjectileComp {

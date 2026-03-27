@@ -1,3 +1,4 @@
+### Completed
 - [x] Find a way to determine the snake is properly scaled with the level. The early game should be easier and the late game should be harder. The user should be (almost always) able to defeat an early game level with enough movement skill. 
 - [x] Create icons or "artistic" enhancement to heroes to better reflect what they do.
 - [x] Storm hero should have actual lightning that damages enemies within a certain range.
@@ -31,3 +32,7 @@
 
 ### User Feedback
 - [x] So far, I made it round 9 and it was way too easy. It was boring - not enough action. Very slow gameplay and repetitive. You are stuck with the same 3 heroes for way too long..
+
+
+### Added
+Dev mode should allow my to select the level so I can test late game scenarios without having to playthrough everytime. S

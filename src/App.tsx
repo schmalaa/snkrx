@@ -543,11 +543,12 @@ function App() {
 
             <button 
               className="btn" 
-              style={{ marginTop: '3rem', marginBottom: '4rem', padding: '1rem 4rem', fontSize: '1.5rem', background: 'var(--accent)', color: '#000' }}
+              style={{ marginTop: '3rem', padding: '1rem 4rem', fontSize: '1.5rem', background: 'var(--accent)', color: '#000', flexShrink: 0 }}
               onClick={startArena}
             >
               START ROUND {round}
             </button>
+            <div style={{ height: '6rem', flexShrink: 0, width: '100%' }} />
           </motion.div>
         )}
 
@@ -624,6 +625,11 @@ function App() {
         <div style={{ position: 'absolute', top: '50px', right: '10px', width: '300px', background: 'rgba(0,0,0,0.9)', border: '1px solid var(--accent)', padding: '15px', borderRadius: '10px', zIndex: 998, maxHeight: '80vh', overflowY: 'auto' }}>
           <h3 style={{ color: 'var(--accent)', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>DEV MENU</h3>
           <button style={{ background: '#fff', color: '#000', padding: '5px', width: '100%', marginBottom: '15px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setGold(g => g + 999)}>+999 GOLD</button>
+          
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+            <span style={{ color: '#aaa', fontSize: '0.9rem', alignSelf: 'center' }}>Set Round:</span>
+            <input type="number" min="1" value={round} onChange={(e) => setRound(Math.max(1, parseInt(e.target.value) || 1))} style={{ width: '60px', background: '#333', color: '#fff', border: '1px solid #555', padding: '5px', borderRadius: '3px' }} />
+          </div>
           
           <div style={{ color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>ADD DIRECTLY TO SNAKE:</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
