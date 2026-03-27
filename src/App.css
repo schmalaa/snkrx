@@ -23,6 +23,10 @@
 .overlay.shop-phase {
   background: rgba(13, 15, 18, 0.95);
   backdrop-filter: blur(15px);
+  overflow-y: auto;
+  justify-content: flex-start;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
 }
 
 .hero-grid {

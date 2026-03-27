@@ -196,7 +196,7 @@ function App() {
               />
            </div>
            
-           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '2px', alignItems: 'center' }}>
+           <div className="build-indicator glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', gap: '2px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
              {snake.map((s, idx) => (
                 <HeroIcon key={idx} hero={s} size={24} />
              ))}
@@ -387,7 +387,7 @@ function App() {
             <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '4rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ color: 'var(--text-muted)' }}>CURRENT SNAKE ({snake.length} HEROES)</div>
-                <div style={{ display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '1rem 2rem', borderRadius: '50px' }}>
+                <div style={{ display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '1rem 2rem', borderRadius: '50px', flexWrap: 'wrap', justifyContent: 'center' }}>
                   {snake.length === 0 && <div style={{ color: '#555' }}>Empty</div>}
                   {snake.map((s) => (
                    <motion.div key={s.id} initial={{ scale: 0 }} animate={{ scale: 1 }} title={s.name}>
