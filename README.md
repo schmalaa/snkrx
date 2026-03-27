@@ -11,7 +11,15 @@ I highly recommend checking out [the original repository](https://github.com/a32
 - **Library**: React 18
 - **Bundler**: Vite
 - **Language**: TypeScript
+- **Auth**: Clerk (`@clerk/clerk-react`)
+- **Analytics**: Vercel Analytics (`@vercel/analytics`)
 - **Rendering Engine**: Custom Entity-Component-System (ECS) running on the `HTML5 Canvas API`
+
+## 🔑 Authentication Setup
+Clerk authentication guards the game logic. To run this project locally, you must provide your own API key:
+1. Create a `Clerk` application on their dashboard.
+2. Create a `.env.local` file in the root directory.
+3. Set `VITE_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY`.
 
 ## 🚀 Getting Started
 

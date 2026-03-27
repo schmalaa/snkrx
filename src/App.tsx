@@ -4,6 +4,7 @@ import { ArenaEngine } from './game/Arena';
 import { CHARACTER_DATA, ITEM_DATA } from './game/Data';
 import type { CharacterDef, ItemDef } from './game/Data';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SignedIn, SignedOut, SignIn, UserButton, useUser } from '@clerk/clerk-react';
 
 type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM' | 'GAME_OVER';
 
@@ -158,6 +159,7 @@ function App() {
   const [itemChoices, setItemChoices] = useState<ItemDef[]>([]);
   const [showHelp, setShowHelp] = useState(false);
   const [showDev, setShowDev] = useState(false);
+  const { user } = useUser();
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArenaEngine | null>(null);
@@ -287,6 +289,18 @@ function App() {
 
   return (
     <div className="app-container">
+      <SignedOut>
+        <div className="overlay" style={{ background: 'radial-gradient(circle at center, rgba(13, 15, 18, 0.8) 0%, rgba(13, 15, 18, 1) 100%)', zIndex: 2000 }}>
+          <h1 className="title" style={{ fontSize: '3rem', marginBottom: '2rem' }}>SYNAPSE SNAKE</h1>
+          <SignIn routing="hash" />
+        </div>
+      </SignedOut>
+
+      <SignedIn>
+        <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 1500, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <UserButton afterSignOutUrl="/" />
+          {user && <span style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 600 }}>{user.username || user.firstName}</span>}
+        </div>
       
       {/* Canvas Layer - Always mounted but hidden unless ARENA */}
       <canvas 
@@ -645,7 +659,7 @@ function App() {
           </div>
         </div>
       )}
-
+      </SignedIn>
     </div>
   );
 }

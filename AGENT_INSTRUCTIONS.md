@@ -25,9 +25,14 @@ Adding new content does not require writing new UI/Rendering blocks.
 - **Juice**: Visual flair matters heavily. If you add a new weapon or collision, ensure it utilizes `CameraSystem.shake()` and triggers `HfxComp` (hit flashing) or emits particles via `spawnParticles`.
 
 ## 5. Difficulty, Economy, and Auto-Chess Scaling
-- **Survival Mechanics**: The game relies on progressive dynamic spawning (`Arena.ts` -> `roundTimeLeft`). You must clear the timer to win the round.
+- **Survival Mechanics**: The game relies on progressive dynamic spawning (`Arena.ts` -> `roundTimeLeft`).
+- **Enemy Progression**: Enemies scale dynamically. Round 1+ spawns `basic` followers. Round 3+ introduces `fast` skittish units. Round 5+ produces high HP `tank` units. Round 7+ drops explosive `swarmer` packs. The Boss (Round 3+) and Super Boss (Star shape) scale exponentially.
 - **Auto-Chess Economy**: Players start with a hard limit of **3 Max Snake Capacity** and **3 Gold**. Winning rounds nets heavily nerfed gold (`2 + round/4`). The player MUST dynamically purchase Capacity Upgrades inside the Tavern ("The Armory") to increase snake sizes. Do not arbitrarily remove `maxSnakeLength` limits.
 - **Exponential Math**: Enemy scaling `(Health, Speed)` utilizes exponential compounding curves (`Math.pow(1.15, round)`). If adjusting difficulty, tune the exponential base, do not use flat addition.
 
 ## 6. TypeScript Compilation
 - This project builds tightly via Vite. Avoid using Parameter Properties (`public`/`private` in constructors) if it violates erased-syntax pipelines. Ensure all variables are aggressively typed, and utilize exact node querying to bypass `any` fallbacks.
+
+## 7. Authentication & Analytics
+- **Clerk**: The `<App />` root strictly hides all gameplay loop logic until `<SignedIn>` validates an active session via `@clerk/clerk-react`. Keys are consumed from `import.meta.env.VITE_CLERK_PUBLISHABLE_KEY` strings.
+- **Vercel**: App analytics are managed neutrally via the `@vercel/analytics` wrapping `<Analytics />` drop-in.
