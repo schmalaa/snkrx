@@ -615,6 +615,71 @@ export class ArenaEngine {
     }
   }
 
+  drawWeapon(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, weapon: string) {
+    if (!weapon) return;
+    const s = (radius / 30) * 1.5; 
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(s, s);
+    
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    
+    if (weapon === 'sword') {
+      ctx.fillStyle = '#e0e0e0'; ctx.strokeStyle = '#ccc';
+      ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(10, -10); ctx.lineTo(5, 20); ctx.lineTo(-5, 20); ctx.lineTo(-10, -10); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#cfb53b'; ctx.strokeStyle = '#b8860b';
+      ctx.fillRect(-15, 15, 30, 6); ctx.strokeRect(-15, 15, 30, 6);
+      ctx.fillStyle = '#8b4513'; ctx.strokeStyle = '#5c3a21';
+      ctx.fillRect(-4, 21, 8, 12); ctx.strokeRect(-4, 21, 8, 12);
+      ctx.fillStyle = '#cfb53b';
+      ctx.beginPath(); ctx.arc(0, 36, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    } else if (weapon === 'arrow') {
+      ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(0, 30); ctx.stroke();
+      ctx.fillStyle = '#e0e0e0'; ctx.strokeStyle = '#ccc'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(10, -15); ctx.lineTo(0, -20); ctx.lineTo(-10, -15); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(10, 25); ctx.moveTo(0, 15); ctx.lineTo(-10, 25); ctx.moveTo(0, 5); ctx.lineTo(10, 15); ctx.moveTo(0, 5); ctx.lineTo(-10, 15); ctx.stroke();
+    } else if (weapon === 'orb') {
+      const rot = (performance.now() / 1500) % (Math.PI * 2);
+      ctx.rotate(rot);
+      ctx.strokeStyle = '#a29bfe'; ctx.lineWidth = 4; ctx.setLineDash([8, 6]);
+      ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#6c5ce7'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath(); ctx.arc(-4, -4, 3, 0, Math.PI*2); ctx.fill();
+    } else if (weapon === 'dagger') {
+      ctx.fillStyle = '#cfd8dc'; ctx.strokeStyle = '#90a4ae';
+      ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(8, 0); ctx.lineTo(3, 20); ctx.lineTo(-3, 20); ctx.lineTo(-8, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#455a64'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(-15, 20); ctx.lineTo(15, 17); ctx.stroke();
+      ctx.fillStyle = '#3e2723';
+      ctx.fillRect(-4, 20, 8, 12);
+    } else if (weapon === 'shield') {
+      ctx.fillStyle = '#78909c'; ctx.strokeStyle = '#cfd8dc'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(-20, -15); ctx.lineTo(20, -15); ctx.lineTo(20, 5); ctx.quadraticCurveTo(0, 35, -20, 5); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(0, 25); ctx.moveTo(-20, 0); ctx.lineTo(20, 0); ctx.stroke();
+    } else if (weapon === 'lightning') {
+      ctx.fillStyle = '#ffeaa7'; ctx.strokeStyle = '#fdcb6e'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(10, -30); ctx.lineTo(-15, 5); ctx.lineTo(0, 5); ctx.lineTo(-10, 35); ctx.lineTo(20, 0); ctx.lineTo(5, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(6, -23); ctx.lineTo(-8, 2); ctx.lineTo(3, 2); ctx.lineTo(-5, 23); ctx.lineTo(12, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    } else if (weapon === 'gun') {
+      ctx.fillStyle = '#636e72'; ctx.strokeStyle = '#2d3436'; ctx.lineWidth = 2;
+      ctx.fillRect(5, -10, 25, 12); ctx.strokeRect(5, -10, 25, 12);
+      ctx.fillStyle = '#b2bec3';
+      ctx.fillRect(-20, -15, 30, 20); ctx.strokeRect(-20, -15, 30, 20);
+      ctx.fillStyle = '#8b4513';
+      ctx.beginPath(); ctx.moveTo(-15, 5); ctx.lineTo(-5, 5); ctx.lineTo(-10, 25); ctx.lineTo(-20, 25); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    
+    ctx.restore();
+  }
+
   render() {
     this.ctx.fillStyle = '#111';
     this.ctx.fillRect(0, 0, this.width, this.height);
@@ -807,6 +872,8 @@ export class ArenaEngine {
       this.drawShape(this.ctx, 0, 0, 15, hDef.shape || 'circle');
       this.ctx.fill();
       this.ctx.stroke();
+
+      this.drawWeapon(this.ctx, 0, 0, 15, hDef.weapon);
 
       // Firing Cooldown Indicator
       const maxCd = stats ? (60 / stats.aspd) : 60;

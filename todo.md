@@ -7,8 +7,6 @@
 - [x] Create a "how to play" section. This should be accessible from the main menu.
 - [x] Add a "made with <3 by Alex" to the footer and link to alexschmaltz.com
 - [x] Fix alignment issue on "Hire" button
-
-
 - [x] How to play button text isnt visible on hover
 - [x] Add space betwween numbeered list on How to play popup
 - [x] The lightning doesnt visually look like lightning. It looks like a blue line... have it jagged and with a flash effect. 
