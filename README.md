@@ -1,20 +1,41 @@
+# Synapse Snake (SNKRX Engine Port)
 
+A high-fidelity arcade survival auto-battler inspired by: [SNKRX](https://github.com/a327ex/SNKRX), completely rebuilt with a custom React + ECS Render Engine on HTML5 Canvas.
 
+## 🌟 Huge Shoutout and Inspiration
+This project is a direct tribute to **[a327ex/SNKRX](https://github.com/a327ex/SNKRX)**, a masterclass in minimalist game design, deep synergies, and "juicy" combat feel. 
 
+I highly recommend checking out [the original repository](https://github.com/a327ex/SNKRX) and playing the phenomenal game on Steam.
 
-# SNKRX
+## 🛠️ Technology Stack
+- **Library**: React 18
+- **Bundler**: Vite
+- **Language**: TypeScript
+- **Auth**: Clerk (`@clerk/clerk-react`)
+- **Analytics**: Vercel Analytics (`@vercel/analytics`)
+- **Rendering Engine**: Custom Entity-Component-System (ECS) running on the `HTML5 Canvas API`
 
-[SNKRX](https://store.steampowered.com/app/915310/SNKRX/) is an arcade shooter roguelite where you control a snake of heroes that automatically attack nearby enemies.
-Combine different heroes to unlock class bonuses and create unique builds, and steer your unstoppable party as they ravage through endless waves of enemies.
+## 🔑 Authentication Setup
+Clerk authentication guards the game logic. To run this project locally, you must provide your own API key:
+1. Create a `Clerk` application on their dashboard.
+2. Create a `.env.local` file in the root directory.
+3. Set `VITE_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY`.
 
-https://user-images.githubusercontent.com/409773/119258159-ea982b00-bb9e-11eb-8082-37e2c65591ea.mp4
+## 🚀 Getting Started
 
-[**Check it out on Steam!**](https://store.steampowered.com/app/915310/SNKRX/)
+```bash
+# Install the web port dependencies
+npm install
 
-### Running
+# Run the development server locally at http://localhost:5173
+npm run dev
+```
 
-Download this repository, `cd` into it and then run `engine/love/love.exe --console .`. You need to have Steam up to run it successfully.
-
-### LICENSE
-
-All assets have their specific licenses and they are linked to in the game's credits. All code is under the MIT license.
+## 🏗️ Deployment (Vercel)
+This project is structured as a standard SPA, ready to be deployed instantly on [Vercel](https://vercel.com):
+1. Import your GitHub repository to Vercel.
+2. Set the framework preset to **Vite**.
+3. Leave the root directory as `/`. 
+4. Build command: `npm run build`
+5. Output directory: `dist`
+6. Click **Deploy**.
