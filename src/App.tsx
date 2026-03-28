@@ -427,13 +427,13 @@ function App() {
                     </div>
                   )}
                 </div>
-                {phase !== 'START' && phase !== 'LEADERBOARD' && (
+                {phase !== 'START' && phase !== 'LEADERBOARD' && phase !== 'COMPENDIUM' && (
                   <div className="gold-display" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
                     💰 {gold} GOLD
                   </div>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  {phase !== 'START' && phase !== 'LEADERBOARD' && (
+                  {phase !== 'START' && phase !== 'LEADERBOARD' && phase !== 'COMPENDIUM' && (
                     <div className="round-display" style={{ fontWeight: 800 }}>ROUND {round}</div>
                   )}
                   {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
