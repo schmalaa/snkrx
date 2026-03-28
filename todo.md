@@ -35,4 +35,5 @@
 
 
 ### Added
-Dev mode should allow my to select the level so I can test late game scenarios without having to playthrough everytime. S
+Dev mode should allow my to select the level so I can test late game scenarios without having to playthrough everytime.
+Create the "merging" of heros for a more powerful hero.

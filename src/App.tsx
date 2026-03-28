@@ -1,12 +1,88 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { ArenaEngine } from './game/Arena';
 import { CHARACTER_DATA, ITEM_DATA } from './game/Data';
 import type { CharacterDef, ItemDef } from './game/Data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, SignIn, UserButton, useUser } from '@clerk/clerk-react';
+import { Filter } from 'bad-words';
 
-type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM' | 'GAME_OVER';
+const filter = new Filter();
+
+const getPlayerTitle = (username: string, maxScore: number) => {
+  if (!username) return null;
+  const name = username.toLowerCase();
+  
+  // Hardcoded Roles
+  if (name === 'helenkiller' || name === 'schmalaa') {
+    return { title: 'DEV', color: '#ff4757', glow: '0 0 10px #ff4757', bg: 'rgba(255, 71, 87, 0.15)', border: '1px solid #ff4757' };
+  }
+  
+  const vips = ['vip_player', 'supporter'];
+  if (vips.includes(name)) {
+    return { title: 'VIP', color: '#ffa502', glow: '0 0 10px #ffa502', bg: 'rgba(255, 165, 2, 0.15)', border: '1px solid #ffa502' };
+  }
+  
+  // Progression Roles
+  if (maxScore >= 100) return { title: 'DEMI-GOD', color: '#ff7f50', glow: '0 0 8px #ff7f50', bg: 'rgba(255, 127, 80, 0.15)', border: '1px solid rgba(255, 127, 80, 0.5)' };
+  if (maxScore >= 50) return { title: 'GRANDMASTER', color: '#9b59b6', glow: '0 0 8px #9b59b6', bg: 'rgba(155, 89, 182, 0.15)', border: '1px solid rgba(155, 89, 182, 0.5)' };
+  if (maxScore >= 20) return { title: 'VETERAN', color: '#3498db', glow: 'none', bg: 'rgba(52, 152, 219, 0.15)', border: '1px solid rgba(52, 152, 219, 0.5)' };
+  
+  return null;
+};
+
+const GamertagModal = ({ user }: { user: any }) => {
+  const [tag, setTag] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const trimmed = tag.trim();
+    if (trimmed.length < 3 || trimmed.length > 15) {
+      return setError('Gamertag must be 3-15 characters long.');
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(trimmed)) {
+      return setError('Gamertag must be alphanumeric.');
+    }
+    if (filter.isProfane(trimmed)) {
+      return setError('That name is inappropriate.');
+    }
+    setLoading(true);
+    try {
+      await user.update({ username: trimmed });
+    } catch (err: any) {
+      setError(err.errors?.[0]?.message || 'Failed to set Gamertag. It might be taken!');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="overlay" style={{ background: 'radial-gradient(circle at center, rgba(13, 15, 18, 0.95) 0%, rgba(13, 15, 18, 1) 100%)', zIndex: 9999 }}>
+      <form onSubmit={handleSubmit} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center', minWidth: '400px', border: '1px solid var(--accent)', background: 'var(--bg-surface)' }}>
+        <h2 className="title" style={{ fontSize: '2.5rem', marginBottom: '0' }}>CHOOSE GAMERTAG</h2>
+        <p style={{ color: 'var(--text-muted)' }}>This name will represent you on the leaderboards.</p>
+        <input 
+          autoFocus
+           type="text" 
+          value={tag} 
+          onChange={e => setTag(e.target.value)} 
+          placeholder="Enter Gamertag..."
+          style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', borderRadius: 'var(--radius)', border: '1px solid #444', background: '#0d0f12', color: '#fff', textAlign: 'center', outline: 'none' }}
+        />
+        {error && <div style={{ color: '#ff4757', fontWeight: 'bold' }}>{error}</div>}
+        <button type="submit" disabled={loading} className="btn" style={{ width: '100%' }}>
+          {loading ? 'SAVING...' : 'CONFIRM UNIQUE TAG'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+
+type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM' | 'GAME_OVER' | 'LEADERBOARD';
 
 const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
   const S = hero.shape;
@@ -159,7 +235,9 @@ function App() {
   const [itemChoices, setItemChoices] = useState<ItemDef[]>([]);
   const [showHelp, setShowHelp] = useState(false);
   const [showDev, setShowDev] = useState(false);
-  const { user } = useUser();
+  const [leaderboardData, setLeaderboardData] = useState<{username: string, score: number}[]>([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const { user, isLoaded } = useUser();
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArenaEngine | null>(null);
@@ -208,11 +286,23 @@ function App() {
     setPhase('ARENA');
   };
 
-  const handleGameOver = () => {
+  const handleGameOver = async () => {
     setPhase('GAME_OVER');
     setScore(round);
     engineRef.current?.destroy();
     engineRef.current = null;
+    
+    if (user?.username) {
+      try {
+        await fetch('/api/leaderboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user.username, score: round })
+        });
+      } catch (err) {
+        console.error("Failed to post high score", err);
+      }
+    }
   };
 
   const handleVictory = (finalScore: number) => {
@@ -220,6 +310,7 @@ function App() {
     
     if (round % 3 === 0) {
       generateItems();
+      setMaxSnakeLength(m => m + 1);
       setPhase('ITEM_SELECT');
     } else {
       setRound(r => r + 1);
@@ -237,6 +328,20 @@ function App() {
     });
     return acc;
   }, {} as Record<string, number>);
+
+  const fetchLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    setPhase('LEADERBOARD');
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      setLeaderboardData(data);
+    } catch (err) {
+      console.error("Failed to fetch leaderboard", err);
+    } finally {
+      setLoadingLeaderboard(false);
+    }
+  };
 
   useEffect(() => {
     if (phase === 'ARENA' && canvasRef.current) {
@@ -297,12 +402,46 @@ function App() {
       </SignedOut>
 
       <SignedIn>
-        <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 1500, display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <UserButton afterSignOutUrl="/" />
-          {user && <span style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 600 }}>{user.username || user.firstName}</span>}
-        </div>
-      
-      {/* Canvas Layer - Always mounted but hidden unless ARENA */}
+        {isLoaded && user && (!user.username || filter.isProfane(user.username)) ? (
+          <GamertagModal user={user} />
+        ) : (
+          <>
+            {/* GLOBAL HEADER */}
+            {phase !== 'ARENA' && (
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', zIndex: 1500, background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <UserButton afterSignOutUrl="/" />
+                  {user && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ color: 'var(--text-main)', fontSize: '1.2rem', fontWeight: 600 }}>{user.username || user.firstName}</span>
+                      {(() => {
+                         // We don't have their max score loaded locally yet, but static VIP/DEV lookup works!
+                         const b = getPlayerTitle(user.username || '', 0); 
+                         if (!b) return null;
+                         return (
+                           <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', background: b.bg, color: b.color, textShadow: b.glow, border: b.border }}>
+                             {b.title}
+                           </span>
+                         );
+                      })()}
+                    </div>
+                  )}
+                </div>
+                <div className="gold-display" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                  💰 {gold} GOLD
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div className="round-display" style={{ fontWeight: 800 }}>ROUND {round}</div>
+                  {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
+                    <button onClick={() => setShowDev(!showDev)} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 15px', borderRadius: '50px', cursor: 'pointer', opacity: showDev ? 1 : 0.7, fontWeight: 'bold' }}>
+                      💻 DEV
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          
+          {/* Canvas Layer - Always mounted but hidden unless ARENA */}
       <canvas 
         ref={canvasRef} 
         className="game-canvas" 
@@ -348,6 +487,9 @@ function App() {
                 setPhase('SHOP');
               }}>
                 PLAY GAME
+              </button>
+              <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: '#333' }} onClick={fetchLeaderboard}>
+                🏆 LEADERBOARD
               </button>
               <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setShowHelp(true)}>
                 HOW TO PLAY
@@ -420,6 +562,48 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence>
+        {phase === 'LEADERBOARD' && (
+          <motion.div className="overlay glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 100 }}>
+             <h2 className="title" style={{ fontSize: '3.5rem', marginBottom: '2rem', color: '#ffea00', textShadow: '0 0 30px rgba(255, 234, 0, 0.5)' }}>GLOBAL LEADERBOARD</h2>
+             <div style={{ width: '100%', maxWidth: '700px', background: 'rgba(0,0,0,0.6)', borderRadius: '15px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+               {loadingLeaderboard ? (
+                 <div style={{ textAlign: 'center', color: '#888', padding: '3rem', fontSize: '1.5rem' }}>Synchronizing records...</div>
+               ) : leaderboardData.length === 0 ? (
+                 <div style={{ textAlign: 'center', color: '#888', padding: '3rem', fontSize: '1.5rem' }}>No runs recorded yet. The frontier is empty.</div>
+               ) : (
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {leaderboardData.map((entry, idx) => {
+                       const badge = getPlayerTitle(entry.username, entry.score);
+                       return (
+                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '1.2rem', background: idx === 0 ? 'rgba(255, 234, 0, 0.15)' : 'rgba(255,255,255,0.05)', borderRadius: '10px', border: idx === 0 ? '1px solid rgba(255, 234, 0, 0.4)' : '1px solid rgba(255,255,255,0.05)' }}>
+                           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                             <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: idx === 0 ? '#ffea00' : idx === 1 ? '#e0e0e0' : idx === 2 ? '#cd7f32' : '#888', width: '40px' }}>
+                               #{idx + 1}
+                             </span>
+                             <span style={{ fontSize: '1.4rem', color: user?.username === entry.username ? 'var(--accent)' : '#fff', fontWeight: user?.username === entry.username ? 'bold' : 'normal', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                               {entry.username} {user?.username === entry.username && '(You)'}
+                               {badge && (
+                                 <span style={{ fontSize: '0.8rem', padding: '2px 8px', borderRadius: '4px', background: badge.bg, color: badge.color, textShadow: badge.glow, border: badge.border }}>
+                                   {badge.title}
+                                 </span>
+                               )}
+                             </span>
+                           </div>
+                           <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--accent-secondary)' }}>
+                              Round {entry.score}
+                           </span>
+                         </div>
+                       )
+                    })}
+                  </div>
+               )}
+             </div>
+             <button className="btn" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {phase === 'SHOP' && (
           <motion.div 
             className="overlay shop-phase"
@@ -428,10 +612,7 @@ function App() {
             exit={{ opacity: 0, y: -50 }}
             transition={{ type: 'spring', bounce: 0.4 }}
           >
-            <div className="top-bar">
-              <div className="gold-display">💰 {gold} GOLD</div>
-              <div className="round-display">ROUND {round}</div>
-            </div>
+            {/* Header handled globally */}
             
             <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', textShadow: '0 0 20px var(--accent-glow)' }}>
               THE ARMORY
@@ -576,7 +757,10 @@ function App() {
             style={{ background: 'rgba(20, 0, 10, 0.95)', border: '2px solid var(--accent-secondary)' }}
           >
             <h2 className="title" style={{ color: 'var(--accent-secondary)', fontSize: '4rem', textShadow: '0 0 30px var(--accent-secondary)' }}>BOSS DEFEATED</h2>
-            <p style={{ color: '#aaa', fontSize: '1.2rem', marginBottom: '1rem' }}>You survived Round {round}! Choose a passive relic to permanently augment your snake.</p>
+            <p style={{ color: '#aaa', fontSize: '1.2rem', marginBottom: '0.5rem' }}>You survived Round {round}! Choose a passive relic to permanently augment your snake.</p>
+            <p style={{ color: 'var(--accent)', fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', textShadow: '0 0 10px var(--accent)' }}>
+              🐍 BONUS: Maximum Snake Capacity increased by 1!
+            </p>
             
             <div className="card-container" style={{ marginTop: '2rem', maxWidth: '1000px', display: 'flex', gap: '2rem' }}>
               {itemChoices.map((item) => (
@@ -614,51 +798,56 @@ function App() {
           <motion.div className="overlay glass-panel" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
              <h2 className="title" style={{ fontSize: '5rem', marginBottom: '1rem', background: 'linear-gradient(to right, #ff4757, #ff6b81)', WebkitBackgroundClip: 'text' }}>GAME OVER</h2>
              <p style={{ fontSize: '1.5rem', color: '#ccc', marginBottom: '3rem' }}>The snake succumbed to the swarm on Round {score}.</p>
-             <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
-                setSnake([]);
-                setGold(3);
-                setMaxSnakeLength(3);
-                setRound(1);
-                setInventory([]);
-                setPhase('START');
-             }}>
-                MAIN MENU
-             </button>
+             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+               <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
+                  setSnake([]);
+                  setGold(3);
+                  setMaxSnakeLength(3);
+                  setRound(1);
+                  setInventory([]);
+                  setPhase('START');
+               }}>
+                  MAIN MENU
+               </button>
+               <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: '#333' }} onClick={fetchLeaderboard}>
+                  🏆 LEADERBOARD
+               </button>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* DEV TOOLS */}
-      <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 999 }}>
-        <button onClick={() => setShowDev(!showDev)} style={{ background: '#333', color: '#fff', border: '1px solid #555', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer', opacity: showDev ? 1 : 0.5 }}>
-          💻 DEV
-        </button>
-      </div>
-      
-      {showDev && (
-        <div style={{ position: 'absolute', top: '50px', right: '10px', width: '300px', background: 'rgba(0,0,0,0.9)', border: '1px solid var(--accent)', padding: '15px', borderRadius: '10px', zIndex: 998, maxHeight: '80vh', overflowY: 'auto' }}>
-          <h3 style={{ color: 'var(--accent)', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>DEV MENU</h3>
-          <button style={{ background: '#fff', color: '#000', padding: '5px', width: '100%', marginBottom: '15px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setGold(g => g + 999)}>+999 GOLD</button>
-          
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-            <span style={{ color: '#aaa', fontSize: '0.9rem', alignSelf: 'center' }}>Set Round:</span>
-            <input type="number" min="1" value={round} onChange={(e) => setRound(Math.max(1, parseInt(e.target.value) || 1))} style={{ width: '60px', background: '#333', color: '#fff', border: '1px solid #555', padding: '5px', borderRadius: '3px' }} />
-          </div>
-          
-          <div style={{ color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>ADD DIRECTLY TO SNAKE:</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            {CHARACTER_DATA.map(c => (
-               <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#222', padding: '5px 10px', borderRadius: '5px' }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                   <HeroIcon hero={c} size={20} />
-                   <span style={{ fontSize: '0.9rem' }}>{c.name}</span>
-                 </div>
-                 <button onClick={() => setSnake(s => [...s, { ...c, id: Math.random().toString() }])} style={{ background: 'var(--accent)', border: 'none', width: '25px', height: '25px', cursor: 'pointer', borderRadius: '3px', fontWeight: 'bold' }}>+</button>
-               </div>
-            ))}
-          </div>
-        </div>
+      {/* DEV TOOLS - ADMIN ONLY */}
+      {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
+        <>
+          {showDev && (
+            <div style={{ position: 'absolute', top: '50px', right: '10px', width: '300px', background: 'rgba(0,0,0,0.9)', border: '1px solid var(--accent)', padding: '15px', borderRadius: '10px', zIndex: 998, maxHeight: '80vh', overflowY: 'auto' }}>
+              <h3 style={{ color: 'var(--accent)', marginBottom: '10px', borderBottom: '1px solid #444', paddingBottom: '5px' }}>DEV MENU</h3>
+              <button style={{ background: '#fff', color: '#000', padding: '5px', width: '100%', marginBottom: '15px', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => setGold(g => g + 999)}>+999 GOLD</button>
+              
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                <span style={{ color: '#aaa', fontSize: '0.9rem', alignSelf: 'center' }}>Set Round:</span>
+                <input type="number" min="1" value={round} onChange={(e) => setRound(Math.max(1, parseInt(e.target.value) || 1))} style={{ width: '60px', background: '#333', color: '#fff', border: '1px solid #555', padding: '5px', borderRadius: '3px' }} />
+              </div>
+              
+              <div style={{ color: '#aaa', fontSize: '0.8rem', marginBottom: '5px' }}>ADD DIRECTLY TO SNAKE:</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                {CHARACTER_DATA.map(c => (
+                   <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#222', padding: '5px 10px', borderRadius: '5px' }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                       <HeroIcon hero={c} size={20} />
+                       <span style={{ fontSize: '0.9rem' }}>{c.name}</span>
+                     </div>
+                     <button onClick={() => setSnake(s => [...s, { ...c, id: Math.random().toString() }])} style={{ background: 'var(--accent)', border: 'none', width: '25px', height: '25px', cursor: 'pointer', borderRadius: '3px', fontWeight: 'bold' }}>+</button>
+                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
+          </>
+        )}
       </SignedIn>
     </div>
   );
