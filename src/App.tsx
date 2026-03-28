@@ -427,11 +427,15 @@ function App() {
                     </div>
                   )}
                 </div>
-                <div className="gold-display" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                  💰 {gold} GOLD
-                </div>
+                {phase !== 'START' && phase !== 'LEADERBOARD' && (
+                  <div className="gold-display" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                    💰 {gold} GOLD
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div className="round-display" style={{ fontWeight: 800 }}>ROUND {round}</div>
+                  {phase !== 'START' && phase !== 'LEADERBOARD' && (
+                    <div className="round-display" style={{ fontWeight: 800 }}>ROUND {round}</div>
+                  )}
                   {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
                     <button onClick={() => setShowDev(!showDev)} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 15px', borderRadius: '50px', cursor: 'pointer', opacity: showDev ? 1 : 0.7, fontWeight: 'bold' }}>
                       💻 DEV
