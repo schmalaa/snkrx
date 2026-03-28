@@ -481,7 +481,7 @@ function App() {
             <motion.img 
               src="/logo.png" 
               alt="Synapse Snake Logo"
-              style={{ width: '300px', marginBottom: '1rem', mixBlendMode: 'screen' }}
+              style={{ width: '300px', marginBottom: '1rem', filter: 'drop-shadow(0 0 30px rgba(0, 240, 255, 0.5))' }}
               initial={{ scale: 0.8, opacity: 0, y: -20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ duration: 0.8, type: 'spring' }}
