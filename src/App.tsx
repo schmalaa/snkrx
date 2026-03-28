@@ -476,8 +476,17 @@ function App() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
-            <h1 className="title" style={{ fontSize: '5rem', marginBottom: '0.5rem', letterSpacing: '0.2em' }}>SYNAPSE SNAKE</h1>
+            <motion.img 
+              src="/logo.png" 
+              alt="Synapse Snake Logo"
+              style={{ width: '300px', marginBottom: '1rem', filter: 'drop-shadow(0 0 30px rgba(0, 240, 255, 0.5))' }}
+              initial={{ scale: 0.8, opacity: 0, y: -20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, type: 'spring' }}
+            />
+            <h1 className="title" style={{ fontSize: '4.5rem', marginBottom: '0.5rem', letterSpacing: '0.2em', textShadow: '0 0 20px var(--accent)' }}>SYNAPSE SNAKE</h1>
             <p style={{ color: 'var(--text-muted)', marginBottom: '3rem', fontSize: '1.2rem', letterSpacing: '0.2rem' }}>A REACT + ECS SURVIVAL ENGINE</p>
             {score > 0 && <p style={{ color: 'var(--accent-secondary)', marginBottom: '2rem' }}>Latest Score: {score}</p>}
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
