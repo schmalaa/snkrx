@@ -36,3 +36,8 @@ Adding new content does not require writing new UI/Rendering blocks.
 ## 7. Authentication & Analytics
 - **Clerk**: The `<App />` root strictly hides all gameplay loop logic until `<SignedIn>` validates an active session via `@clerk/clerk-react`. Keys are consumed from `import.meta.env.VITE_CLERK_PUBLISHABLE_KEY` strings.
 - **Vercel**: App analytics are managed neutrally via the `@vercel/analytics` wrapping `<Analytics />` drop-in.
+
+## 8. UI and Styling Rules
+- **No Inline Styles**: The UI layout (`App.tsx`) was massively refactored to eliminate massive React `style={{}}` object declarations. Under no circumstances should you clutter the DOM with inline layout dictionaries.
+- **Tokenized CSS**: Always use the global utility tokens defined in `index.css` (e.g., `.flex`, `.flex-col`, `.justify-between`, `.gap-4`, `.text-accent`, `.glass-panel`).
+- **Compound Components**: For complex overlays (like the Armory/Shop or Modals), use BEM-structured classes mapped in `App.css` (e.g., `.snake-capacity-panel`, `.tier-legend`).

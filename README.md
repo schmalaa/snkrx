@@ -13,6 +13,7 @@ I highly recommend checking out [the original repository](https://github.com/a32
 - **Language**: TypeScript
 - **Auth**: Clerk (`@clerk/clerk-react`)
 - **Analytics**: Vercel Analytics (`@vercel/analytics`)
+- **Styling**: Tokenized CSS Utility Framework (`index.css`) + BEM Layouts (`App.css`)
 - **Rendering Engine**: Custom Entity-Component-System (ECS) running on the `HTML5 Canvas API`
 
 ## 🔑 Authentication Setup

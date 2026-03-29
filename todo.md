@@ -1,4 +1,6 @@
 ### Completed
+- [x] Refactored all inline React styles into a clean tokenized CSS framework.
+- [x] Completely redesigned the Armory UI into a proximity-based 2-column flex hierarchy.
 - [x] Find a way to determine the snake is properly scaled with the level. The early game should be easier and the late game should be harder. The user should be (almost always) able to defeat an early game level with enough movement skill. 
 - [x] Create icons or "artistic" enhancement to heroes to better reflect what they do.
 - [x] Storm hero should have actual lightning that damages enemies within a certain range.
