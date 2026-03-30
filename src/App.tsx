@@ -348,15 +348,6 @@ function App() {
                     }}>
                       PLAY GAME
                     </button>
-                    <Link to="/leaderboard" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: '#333', textDecoration: 'none' }}>
-                      🏆 LEADERBOARD
-                    </Link>
-                    <Link to="/how-to-play" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', textDecoration: 'none' }}>
-                      HOW TO PLAY
-                    </Link>
-                    <Link to="/wiki" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', textDecoration: 'none' }}>
-                      WIKI
-                    </Link>
                   </div>
 
                   <div className="text-muted text-center w-full" style={{ position: 'absolute', bottom: '1.5rem', fontSize: '0.9rem' }}>
