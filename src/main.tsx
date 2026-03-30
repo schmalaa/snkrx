@@ -13,6 +13,8 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key. Please set VITE_CLERK_PUBLISHABLE_KEY or NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY in .env.local")
 }
 
+import { BrowserRouter } from 'react-router-dom';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ClerkProvider 
@@ -36,7 +38,9 @@ createRoot(document.getElementById('root')!).render(
         }
       }}
     >
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
       <Analytics />
     </ClerkProvider>
   </StrictMode>,

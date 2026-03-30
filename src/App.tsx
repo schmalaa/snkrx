@@ -4,32 +4,16 @@ import { ArenaEngine } from './game/Arena';
 import { CHARACTER_DATA, ITEM_DATA } from './game/Data';
 import type { CharacterDef, ItemDef } from './game/Data';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { SignedIn, SignedOut, SignIn, UserButton, useUser } from '@clerk/clerk-react';
 import { Filter } from 'bad-words';
+import { getPlayerTitle } from './utils/getPlayerTitle';
+import { HeroIcon } from './components/HeroIcon';
+import { HowToPlay } from './pages/HowToPlay';
+import { Wiki } from './pages/Wiki';
+import { Leaderboard } from './pages/Leaderboard';
 
 const filter = new Filter();
-
-const getPlayerTitle = (username: string, maxScore: number) => {
-  if (!username) return null;
-  const name = username.toLowerCase();
-
-  // Hardcoded Roles
-  if (name === 'helenkiller' || name === 'schmalaa') {
-    return { title: 'DEV', color: '#ff4757', glow: '0 0 10px #ff4757', bg: 'rgba(255, 71, 87, 0.15)', border: '1px solid #ff4757' };
-  }
-
-  const vips = ['vip_player', 'supporter'];
-  if (vips.includes(name)) {
-    return { title: 'VIP', color: '#ffa502', glow: '0 0 10px #ffa502', bg: 'rgba(255, 165, 2, 0.15)', border: '1px solid #ffa502' };
-  }
-
-  // Progression Roles
-  if (maxScore >= 100) return { title: 'DEMI-GOD', color: '#ff7f50', glow: '0 0 8px #ff7f50', bg: 'rgba(255, 127, 80, 0.15)', border: '1px solid rgba(255, 127, 80, 0.5)' };
-  if (maxScore >= 50) return { title: 'GRANDMASTER', color: '#9b59b6', glow: '0 0 8px #9b59b6', bg: 'rgba(155, 89, 182, 0.15)', border: '1px solid rgba(155, 89, 182, 0.5)' };
-  if (maxScore >= 20) return { title: 'VETERAN', color: '#3498db', glow: 'none', bg: 'rgba(52, 152, 219, 0.15)', border: '1px solid rgba(52, 152, 219, 0.5)' };
-
-  return null;
-};
 
 const GamertagModal = ({ user }: { user: any }) => {
   const [tag, setTag] = React.useState('');
@@ -84,145 +68,6 @@ const GamertagModal = ({ user }: { user: any }) => {
 
 type Phase = 'START' | 'SHOP' | 'ARENA' | 'ITEM_SELECT' | 'COMPENDIUM' | 'GAME_OVER' | 'LEADERBOARD';
 
-const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
-  const S = hero.shape;
-  const W = hero.weapon;
-  const gradientId = `grad-${hero.id}`;
-  const isHighTier = hero.tier >= 3;
-
-  return (
-    <div style={{ width: size, height: size, display: 'inline-block', filter: `drop-shadow(0 0 10px ${hero.color}${isHighTier ? 'aa' : '66'})` }}>
-      <svg viewBox="0 0 100 100" width={size} height={size}>
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-            <stop offset="40%" stopColor={hero.color} stopOpacity="1" />
-            <stop offset="100%" stopColor="#000000" stopOpacity="0.8" />
-          </linearGradient>
-          <filter id="innerGlow">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-            <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowDiff" />
-            <feFlood floodColor="#ffffff" floodOpacity="0.5" />
-            <feComposite in2="shadowDiff" operator="in" />
-            <feComposite in2="SourceGraphic" operator="over" />
-          </filter>
-        </defs>
-
-        {/* Background Shape */}
-        <g fill={`url(#${gradientId})`} stroke="rgba(255,255,255,0.9)" strokeWidth={isHighTier ? "4" : "2"} strokeLinejoin="round" filter="url(#innerGlow)">
-          {S === 'circle' && <circle cx="50" cy="50" r="45" />}
-          {S === 'square' && <rect x="8" y="8" width="84" height="84" rx="20" />}
-          {S === 'triangle' && <polygon points="50,10 95,85 5,85" strokeLinejoin="miter" />}
-          {S === 'diamond' && <polygon points="50,5 95,50 50,95 5,50" />}
-          {S === 'hexagon' && <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" />}
-          {S === 'cross' && <polygon points="35,10 65,10 65,35 90,35 90,65 65,65 65,90 35,90 35,65 10,65 10,35 35,35" rx="5" />}
-        </g>
-
-        {/* Accent Rings for high tier */}
-        {isHighTier && (
-          <g fill="none" stroke="rgba(255,215,0,0.6)" strokeWidth="2">
-            <circle cx="50" cy="50" r="38" strokeDasharray="4 4" />
-          </g>
-        )}
-
-        {/* Inner Weapon Icon */}
-        <g stroke="#fff" fill="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ transformOrigin: '50% 50%', transform: S === 'triangle' ? 'scale(0.60) translateY(15px)' : 'scale(0.65)' }}>
-          {W === 'sword' && (
-            <g>
-              {/* Blade */}
-              <path d="M 50 10 L 60 25 L 55 70 L 45 70 L 40 25 Z" fill="#e0e0e0" stroke="#ccc" />
-              {/* Crossguard */}
-              <rect x="25" y="65" width="50" height="8" fill="#ffd700" stroke="#b8860b" rx="3" />
-              {/* Hilt */}
-              <rect x="42" y="73" width="16" height="20" fill="#8b4513" stroke="#5c3a21" />
-              {/* Pommel */}
-              <circle cx="50" cy="95" r="6" fill="#ffd700" stroke="#b8860b" />
-              {/* Edge line */}
-              <line x1="50" y1="15" x2="50" y2="70" stroke="#fff" strokeWidth="2" />
-            </g>
-          )}
-
-          {W === 'arrow' && (
-            <g>
-              {/* Shaft */}
-              <line x1="50" y1="10" x2="50" y2="90" stroke="#8b4513" strokeWidth="6" />
-              {/* Arrowhead */}
-              <polygon points="50,5 65,25 50,18 35,25" fill="#e0e0e0" stroke="#ccc" />
-              {/* Fletching */}
-              <path d="M 50 75 L 65 90 L 50 90 M 50 75 L 35 90 L 50 90 M 50 65 L 65 80 L 50 80 M 50 65 L 35 80 L 50 80" fill="none" stroke="#e0e0e0" strokeWidth="4" />
-            </g>
-          )}
-
-          {W === 'orb' && (
-            <g>
-              {/* Outer ring */}
-              <circle cx="50" cy="50" r="35" fill="none" stroke="#a29bfe" strokeWidth="6" strokeDasharray="15 10" style={{ transformOrigin: '50% 50%', animation: 'spin 10s linear infinite' }} />
-              {/* Inner core */}
-              <circle cx="50" cy="50" r="22" fill="#6c5ce7" stroke="#fff" strokeWidth="3" />
-              {/* Core highlight */}
-              <circle cx="43" cy="43" r="6" fill="#fff" stroke="none" opacity="0.8" />
-            </g>
-          )}
-
-          {W === 'dagger' && (
-            <g>
-              {/* Blade */}
-              <path d="M 50 15 L 62 40 L 53 75 L 47 75 L 38 40 Z" fill="#cfd8dc" stroke="#90a4ae" strokeWidth="3" />
-              {/* Guard */}
-              <line x1="30" y1="75" x2="70" y2="71" stroke="#455a64" strokeWidth="6" strokeLinecap="round" />
-              {/* Handle */}
-              <rect x="44" y="75" width="12" height="20" fill="#3e2723" stroke="none" />
-              {/* Edge */}
-              <line x1="50" y1="20" x2="50" y2="75" stroke="#fff" strokeWidth="2" />
-            </g>
-          )}
-
-          {W === 'shield' && (
-            <g>
-              {/* Shield Body */}
-              <path d="M 20 20 L 80 20 L 80 50 Q 50 100 20 50 Z" fill="#78909c" stroke="#cfd8dc" strokeWidth="6" strokeLinejoin="round" />
-              {/* Shield Cross/Crest */}
-              <path d="M 50 20 L 50 85 M 20 40 L 80 40" fill="none" stroke="#fff" strokeWidth="8" opacity="0.6" />
-              {/* Rivets */}
-              <circle cx="30" cy="30" r="3" fill="#fff" stroke="none" />
-              <circle cx="70" cy="30" r="3" fill="#fff" stroke="none" />
-              <circle cx="50" cy="80" r="3" fill="#fff" stroke="none" />
-            </g>
-          )}
-
-          {W === 'lightning' && (
-            <g>
-              {/* Bolt */}
-              <polygon points="65,5 30,55 50,55 35,95 80,45 55,45" fill="#ffeaa7" stroke="#fdcb6e" strokeWidth="4" strokeLinejoin="miter" />
-              <polygon points="60,15 38,50 55,50 42,80 68,48 50,48" fill="#fff" stroke="none" />
-            </g>
-          )}
-
-          {W === 'gun' && (
-            <g>
-              {/* Barrel */}
-              <rect x="55" y="35" width="35" height="15" fill="#636e72" stroke="#2d3436" strokeWidth="4" rx="2" />
-              {/* Body */}
-              <rect x="20" y="30" width="40" height="25" fill="#b2bec3" stroke="#2d3436" strokeWidth="4" rx="4" />
-              {/* Handle */}
-              <path d="M 25 55 L 40 55 L 35 85 L 15 85 Z" fill="#8b4513" stroke="#2d3436" strokeWidth="4" strokeLinejoin="round" />
-              {/* Trigger */}
-              <path d="M 40 55 L 45 65 L 40 70" fill="none" stroke="#2d3436" strokeWidth="3" />
-              {/* Detail */}
-              <line x1="25" y1="40" x2="55" y2="40" stroke="#2d3436" strokeWidth="2" />
-            </g>
-          )}
-
-          {/* Fallback */}
-          {!['sword', 'arrow', 'orb', 'dagger', 'shield', 'lightning', 'gun'].includes(W) && (
-            <circle cx="50" cy="50" r="20" fill="#fff" />
-          )}
-        </g>
-      </svg>
-    </div>
-  );
-};
-
 function App() {
   const [phase, setPhase] = useState<Phase>('START');
   const [gold, setGold] = useState(3);
@@ -233,10 +78,7 @@ function App() {
   const [shopItems, setShopItems] = useState<CharacterDef[]>([]);
   const [inventory, setInventory] = useState<ItemDef[]>([]);
   const [itemChoices, setItemChoices] = useState<ItemDef[]>([]);
-  const [showHelp, setShowHelp] = useState(false);
   const [showDev, setShowDev] = useState(false);
-  const [leaderboardData, setLeaderboardData] = useState<{ username: string, score: number }[]>([]);
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const { user, isLoaded } = useUser();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -329,20 +171,6 @@ function App() {
     return acc;
   }, {} as Record<string, number>);
 
-  const fetchLeaderboard = async () => {
-    setLoadingLeaderboard(true);
-    setPhase('LEADERBOARD');
-    try {
-      const res = await fetch('/api/leaderboard');
-      const data = await res.json();
-      setLeaderboardData(data);
-    } catch (err) {
-      console.error("Failed to fetch leaderboard", err);
-    } finally {
-      setLoadingLeaderboard(false);
-    }
-  };
-
   useEffect(() => {
     if (phase === 'ARENA' && canvasRef.current) {
       canvasRef.current.width = window.innerWidth;
@@ -392,11 +220,16 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, [phase]);
 
+  const location = useLocation();
+  const isNonGameRoute = location.pathname !== '/';
+  const isStartPhase = phase === 'START' || phase === 'GAME_OVER';
+  const showNavLinks = isNonGameRoute || isStartPhase;
+
   return (
     <div className="app-container">
       <SignedOut>
         <div className="overlay" style={{ background: 'radial-gradient(circle at center, rgba(13, 15, 18, 0.8) 0%, rgba(13, 15, 18, 1) 100%)', zIndex: 2000 }}>
-          <h1 className="title" style={{ fontSize: '3rem', marginBottom: '2rem' }}>SYNAPSE SNAKE</h1>
+          <h1 className="title logo-title" style={{ fontSize: '3rem', marginBottom: '2rem' }}>SYNAPSE SNAKE</h1>
           <SignIn routing="hash" />
         </div>
       </SignedOut>
@@ -407,7 +240,7 @@ function App() {
         ) : (
           <>
             {/* GLOBAL HEADER */}
-            {phase !== 'ARENA' && (
+            {(phase !== 'ARENA' || location.pathname !== '/') && (
               <div className="global-header">
                 <div className="flex items-center gap-10px">
                   <UserButton afterSignOutUrl="/" />
@@ -427,13 +260,22 @@ function App() {
                     </div>
                   )}
                 </div>
-                {phase !== 'START' && phase !== 'LEADERBOARD' && phase !== 'COMPENDIUM' && (
+                
+                {showNavLinks ? (
+                  <div className="nav-links absolute-center">
+                    <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} onClick={() => setPhase('START')}>Home</Link>
+                    <Link to="/how-to-play" className={`nav-link ${location.pathname === '/how-to-play' ? 'active' : ''}`}>How to Play</Link>
+                    <Link to="/wiki" className={`nav-link ${location.pathname === '/wiki' ? 'active' : ''}`}>Wiki</Link>
+                    <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>Leaderboard</Link>
+                  </div>
+                ) : (
                   <div className="gold-display absolute-center">
                     💰 {gold} GOLD
                   </div>
                 )}
+
                 <div className="flex items-center gap-20px">
-                  {phase !== 'START' && phase !== 'LEADERBOARD' && phase !== 'COMPENDIUM' && (
+                  {!showNavLinks && (
                     <div className="round-display font-bold">ROUND {round}</div>
                   )}
                   {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
@@ -449,10 +291,16 @@ function App() {
             <canvas
               ref={canvasRef}
               className="game-canvas"
-              style={{ display: phase === 'ARENA' ? 'block' : 'none' }}
+              style={{ display: phase === 'ARENA' && location.pathname === '/' ? 'block' : 'none' }}
             />
 
-            {phase === 'ARENA' && (
+            <Routes>
+              <Route path="/how-to-play" element={<HowToPlay />} />
+              <Route path="/wiki" element={<Wiki />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/" element={
+                <>
+                  {phase === 'ARENA' && (
               <>
                 <div className="health-bar">
                   <div
@@ -485,10 +333,10 @@ function App() {
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, type: 'spring' }}
                   />
-                  <h1 className="title text-center mb-1 tracking-wide" style={{ fontSize: '4.5rem', textShadow: '0 0 20px var(--accent)' }}>SYNAPSE SNAKE</h1>
+                  <h1 className="title logo-title text-center mb-1 tracking-wide" style={{ fontSize: '4.5rem' }}>SYNAPSE SNAKE</h1>
                   <p className="text-muted mb-6 text-lg tracking-wide">A REACT + ECS SURVIVAL ENGINE</p>
                   {score > 0 && <p className="text-accent-secondary mb-4 font-bold">Latest Score: {score}</p>}
-                  <div className="flex gap-2 justify-center">
+                   <div className="flex gap-2 justify-center">
                     <button className="btn" style={{ padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => {
                       setSnake([{ ...CHARACTER_DATA[0], id: 'h1_initial' }]); // Start with Vagrant
                       setGold(3);
@@ -500,117 +348,20 @@ function App() {
                     }}>
                       PLAY GAME
                     </button>
-                    <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: '#333' }} onClick={fetchLeaderboard}>
+                    <Link to="/leaderboard" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', background: '#333', textDecoration: 'none' }}>
                       🏆 LEADERBOARD
-                    </button>
-                    <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setShowHelp(true)}>
+                    </Link>
+                    <Link to="/how-to-play" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', textDecoration: 'none' }}>
                       HOW TO PLAY
-                    </button>
-                    <button className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem' }} onClick={() => setPhase('COMPENDIUM')}>
+                    </Link>
+                    <Link to="/wiki" className="btn" style={{ padding: '1.5rem 2rem', fontSize: '1.5rem', textDecoration: 'none' }}>
                       WIKI
-                    </button>
+                    </Link>
                   </div>
 
                   <div className="text-muted text-center w-full" style={{ position: 'absolute', bottom: '1.5rem', fontSize: '0.9rem' }}>
                     Made with ❤️ by <a href="https://alexschmaltz.com" target="_blank" rel="noreferrer" className="text-accent" style={{ textDecoration: 'none' }}>Alex</a>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {showHelp && (
-                <motion.div className="overlay glass-panel z-100" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <h2 className="title text-3xl mb-4">HOW TO PLAY</h2>
-                  <div className="text-left text-lg text-white" style={{ maxWidth: '600px', lineHeight: '1.8' }}>
-                    <p className="mb-3"><strong>1. Build Your Snake:</strong> Use gold in the Tavern to hire specialized heroes. Heroes have unique weapons and classes.</p>
-                    <p className="mb-3"><strong>2. Class Synergies:</strong> Hiring multiple heroes of the SAME class unlocks massive passive buffs (e.g. 3 Warriors gain +50% damage).</p>
-                    <p className="mb-3"><strong>3. Combat:</strong> Steer your snake using the mouse. Heroes automatically attack nearby enemies based on distance and cooldowns.</p>
-                    <p className="mb-3"><strong>4. Relics:</strong> Defeat the Elite Boss every 3 rounds to draft permanent passive Relic upgrades that alter your run!</p>
-                  </div>
-                  <button className="btn mt-6" style={{ padding: '1rem 3rem' }} onClick={() => setShowHelp(false)}>BACK</button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {phase === 'COMPENDIUM' && (
-                <motion.div className="overlay glass-panel wiki-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <h2 className="title text-3xl mb-2">SNAKE WIKI</h2>
-                  <div className="flex gap-4 flex-wrap justify-center mb-4">
-                    <div className="wiki-card">
-                      <h3 className="text-accent mb-2" style={{ borderBottom: '1px solid #555', paddingBottom: '0.5rem' }}>Classes & Synergies</h3>
-                      <ul className="wiki-list">
-                        <li><strong className="text-white">Warrior (3+):</strong> +50% Global Damage. Frontline bruisers.</li>
-                        <li><strong className="text-white">Mage (3+):</strong> +50% Global Damage. Heavy AoE magic.</li>
-                        <li><strong className="text-white">Enchanter (2+):</strong> +25% Global Damage. Elemental chaining attacks.</li>
-                        <li><strong className="text-white">Psyker:</strong> Manipulates time and space.</li>
-                        <li><strong className="text-white">Ranger:</strong> Piercing, high single-target physical projectiles.</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <h3 className="text-accent-secondary text-2xl mb-4">Hero Roster</h3>
-                  <div className="hero-grid" style={{ maxWidth: '1200px', margin: '0 auto', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                    {CHARACTER_DATA.map(hero => (
-                      <div key={hero.id} className="hero-card flex-col" style={{ height: '100%', borderColor: '#444' }}>
-                        <div className="flex justify-center mb-2">
-                          <HeroIcon hero={hero} size={60} />
-                        </div>
-                        <div className="flex-col text-center flex-grow">
-                          <div className="hero-name text-lg">{hero.name}</div>
-                          <div className="hero-class text-sm mb-1">{hero.classes.join(', ')}</div>
-                          <div className="text-sm mb-1" style={{ color: '#ffb142' }}>Cost: {Array(hero.tier).fill('⭐').join('')}</div>
-                          <div className="hero-description text-sm mb-2">{hero.description}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-center mt-6 mb-4">
-                    <button className="btn" style={{ padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {phase === 'LEADERBOARD' && (
-                <motion.div className="overlay glass-panel z-100" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <h2 className="title text-center text-3xl mb-4" style={{ color: '#ffea00', textShadow: '0 0 30px rgba(255, 234, 0, 0.5)' }}>GLOBAL LEADERBOARD</h2>
-                  <div className="leaderboard-panel">
-                    {loadingLeaderboard ? (
-                      <div className="text-center text-muted p-4 text-xl">Synchronizing records...</div>
-                    ) : leaderboardData.length === 0 ? (
-                      <div className="text-center text-muted p-4 text-xl">No runs recorded yet. The frontier is empty.</div>
-                    ) : (
-                      <div className="flex-col gap-10px">
-                        {leaderboardData.map((entry, idx) => {
-                          const badge = getPlayerTitle(entry.username, entry.score);
-                          return (
-                            <div key={idx} className="flex justify-between items-center p-3" style={{ background: idx === 0 ? 'rgba(255, 234, 0, 0.15)' : 'rgba(255,255,255,0.05)', borderRadius: '10px', border: idx === 0 ? '1px solid rgba(255, 234, 0, 0.4)' : '1px solid rgba(255,255,255,0.05)' }}>
-                              <div className="flex gap-20px items-center">
-                                <span className="font-bold" style={{ fontSize: '1.4rem', color: idx === 0 ? '#ffea00' : idx === 1 ? '#e0e0e0' : idx === 2 ? '#cd7f32' : '#888', width: '40px' }}>
-                                  #{idx + 1}
-                                </span>
-                                <span className="flex items-center gap-10px" style={{ fontSize: '1.4rem', color: user?.username === entry.username ? 'var(--accent)' : '#fff', fontWeight: user?.username === entry.username ? 'bold' : 'normal' }}>
-                                  {entry.username} {user?.username === entry.username && '(You)'}
-                                  {badge && (
-                                    <span style={{ fontSize: '0.8rem', padding: '2px 8px', borderRadius: '4px', background: badge.bg, color: badge.color, textShadow: badge.glow, border: badge.border }}>
-                                      {badge.title}
-                                    </span>
-                                  )}
-                                </span>
-                              </div>
-                              <span className="font-bold text-accent-secondary text-xl">
-                                Round {entry.score}
-                              </span>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  <button className="btn mt-6" style={{ padding: '1rem 3rem' }} onClick={() => setPhase('START')}>RETURN TO MENU</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -830,13 +581,16 @@ function App() {
                     }}>
                       MAIN MENU
                     </button>
-                    <button className="btn p-3 text-xl" style={{ background: '#333' }} onClick={fetchLeaderboard}>
+                    <Link to="/leaderboard" className="btn p-3 text-xl" style={{ background: '#333', textDecoration: 'none' }}>
                       🏆 LEADERBOARD
-                    </button>
+                    </Link>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
+            </>
+           } />
+          </Routes>
 
             {/* DEV TOOLS - ADMIN ONLY */}
             {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (

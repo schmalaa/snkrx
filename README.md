@@ -16,6 +16,14 @@ I highly recommend checking out [the original repository](https://github.com/a32
 - **Styling**: Tokenized CSS Utility Framework (`index.css`) + BEM Layouts (`App.css`)
 - **Rendering Engine**: Custom Entity-Component-System (ECS) running on the `HTML5 Canvas API`
 
+## 🕹️ Features
+- **Dynamic Classes & Synergies**: Combine different heroes to unlock powerful class-based area effects and stat boosts.
+- **Procedural Rendering**: No image assets/sprites. Every visual element is procedurally drawn on the Canvas.
+- **Exponential Scaling**: Enemies scale dynamically in health and speed to provide a challenging rogue-lite experience.
+- **The Armory**: Strategically purchase heroes, merge duplicates for power spikes, and manage your snake's max capacity.
+- **Built-in Wiki**: Access comprehensive data on heroes, classes, and synergies directly in-game.
+- **Dev Mode**: Test synergies and late-game scenarios without having to play through the early levels.
+
 ## 🔑 Authentication Setup
 Clerk authentication guards the game logic. To run this project locally, you must provide your own API key:
 1. Create a `Clerk` application on their dashboard.
