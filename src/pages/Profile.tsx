@@ -95,14 +95,19 @@ export const Profile = () => {
     }
     
     setLoading(true);
+    const updatePayload: any = {
+      unsafeMetadata: {
+        ...user.unsafeMetadata,
+        country: country || null
+      }
+    };
+
+    if (trimmed !== user.username) {
+      updatePayload.username = trimmed;
+    }
+
     try {
-      await user.update({ 
-        username: trimmed,
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          country: country || null
-        }
-      });
+      await user.update(updatePayload);
       setSuccess('Profile updated successfully!');
     } catch (err: any) {
       setError(err.errors?.[0]?.message || 'Failed to update profile. Username might be taken.');
