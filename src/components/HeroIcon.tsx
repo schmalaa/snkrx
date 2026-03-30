@@ -1,4 +1,3 @@
-import React from 'react';
 import type { CharacterDef } from '../game/Data';
 
 export const HeroIcon = ({ hero, size = 60 }: { hero: CharacterDef, size?: number }) => {
