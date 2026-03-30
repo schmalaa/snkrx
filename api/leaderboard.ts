@@ -31,8 +31,8 @@ export default async function handler(request: any, response: any) {
   } else if (request.method === 'POST') {
     const { username, score, country } = request.body;
     
-    if (!username || typeof score !== 'number') {
-      return response.status(400).json({ error: 'Invalid body' });
+    if (!username) {
+      return response.status(400).json({ error: 'Missing username' });
     }
     
     try {
@@ -44,14 +44,21 @@ export default async function handler(request: any, response: any) {
         // Ignore if error occurs when column already exists in some edge cases
       }
       
-      await pool.query(
-        `INSERT INTO leaderboard (username, score, country)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (username) DO UPDATE
-         SET score = GREATEST(leaderboard.score, EXCLUDED.score),
-             country = COALESCE(EXCLUDED.country, leaderboard.country);`,
-        [username, score, country || null]
-      );
+      if (typeof score === 'number') {
+        await pool.query(
+          `INSERT INTO leaderboard (username, score, country)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (username) DO UPDATE
+           SET score = GREATEST(leaderboard.score, EXCLUDED.score),
+               country = COALESCE(EXCLUDED.country, leaderboard.country);`,
+          [username, score, country || null]
+        );
+      } else {
+        await pool.query(
+          `UPDATE leaderboard SET country = $2 WHERE username = $1;`,
+          [username, country || null]
+        );
+      }
       
       return response.status(200).json({ success: true });
     } catch (error: any) {

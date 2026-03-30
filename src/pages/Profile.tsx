@@ -108,6 +108,16 @@ export const Profile = () => {
 
     try {
       await user.update(updatePayload);
+      
+      fetch('/api/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          username: updatePayload.username || user.username, 
+          country: updatePayload.unsafeMetadata.country 
+        })
+      }).catch(err => console.error("Failed to sync leaderboard metadata", err));
+
       setSuccess('Profile updated successfully!');
     } catch (err: any) {
       setError(err.errors?.[0]?.message || 'Failed to update profile. Username might be taken.');
