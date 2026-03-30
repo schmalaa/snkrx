@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useUser } from '@clerk/clerk-react';
 import { Filter } from 'bad-words';
 import { getFlagEmoji } from '../utils/getFlagEmoji';
+import { FlagIcon } from '../components/FlagIcon';
 
 const filter = new Filter();
 
@@ -163,7 +164,7 @@ export const Profile = () => {
               </select>
               {country && (
                 <div className="flex items-center justify-center p-2" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', minWidth: '60px', fontSize: '2rem' }}>
-                  {getFlagEmoji(country)}
+                  <FlagIcon code={country} size={32} />
                 </div>
               )}
             </div>
