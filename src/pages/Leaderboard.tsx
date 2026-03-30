@@ -15,7 +15,12 @@ export const Leaderboard = () => {
       try {
         const res = await fetch('/api/leaderboard');
         const data = await res.json();
-        setLeaderboardData(data);
+        if (Array.isArray(data)) {
+          setLeaderboardData(data);
+        } else {
+          console.error("Leaderboard payload failed:", data);
+          setLeaderboardData([]);
+        }
       } catch (err) {
         console.error("Failed to fetch leaderboard", err);
       } finally {

@@ -15,6 +15,17 @@ export default async function handler(request: any, response: any) {
         await pool.query('CREATE TABLE IF NOT EXISTS leaderboard ( username VARCHAR(255) PRIMARY KEY, score INTEGER NOT NULL, country VARCHAR(5) );');
         return response.status(200).json([]);
       }
+
+      if (error.message?.includes('column "country" does not exist')) {
+        try {
+          await pool.query('ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS country VARCHAR(5);');
+          const { rows } = await pool.query('SELECT username, score, country FROM leaderboard ORDER BY score DESC LIMIT 10;');
+          return response.status(200).json(rows);
+        } catch (retryError: any) {
+          return response.status(500).json({ error: retryError.message });
+        }
+      }
+
       return response.status(500).json({ error: error.message });
     }
   } else if (request.method === 'POST') {
