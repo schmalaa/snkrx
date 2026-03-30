@@ -2,6 +2,15 @@ import { motion } from 'framer-motion';
 import { CHARACTER_DATA } from '../game/Data';
 import { HeroIcon } from '../components/HeroIcon';
 
+const ENEMY_DATA = [
+  { name: 'Basic Follower', rounds: 'Round 1+', description: 'Standard slow-moving grunt. Overwhelms you in numbers.', icon: '🟩', color: '#ff4757' },
+  { name: 'Fast Unit', rounds: 'Round 3+', description: 'Skittish and quick. Darts around attempting to flank the snake.', icon: '🔺', color: '#ffa502' },
+  { name: 'Tank Unit', rounds: 'Round 5+', description: 'High HP behemoth that requires focused fire to take down.', icon: '🟪', color: '#8e44ad' },
+  { name: 'Swarmer', rounds: 'Round 7+', description: 'Small explosive units that spawn in tight packs.', icon: '💠', color: '#2ecc71' },
+  { name: 'Boss', rounds: 'Every 3 Rounds', description: 'Massive elite with huge health pool. Drops a Relic upon death.', icon: '🛑', color: '#e84118' },
+  { name: 'Super Boss', rounds: 'Late Game', description: 'Star-shaped monstrosity with exponentially scaling stats.', icon: '✴️', color: '#fbc531' }
+];
+
 export const Wiki = () => {
   return (
     <motion.div className="page-container wiki-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -58,6 +67,30 @@ export const Wiki = () => {
                   </div>
                   <div className="text-muted" style={{ fontSize: '0.875rem', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {hero.description}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Enemies Roster Section */}
+        <div className="w-full mt-4">
+          <h3 className="text-4xl mb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem', color: '#ff4757', textShadow: '0 0 20px rgba(255, 71, 87, 0.5)' }}>Enemies Roster</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', paddingBottom: '2.5rem' }}>
+            {ENEMY_DATA.map((enemy, idx) => (
+              <div key={idx} className="flex items-center gap-10px p-3" style={{ background: 'rgba(255,100,100,0.05)', border: `1px solid ${enemy.color}44`, borderRadius: '8px', boxShadow: `inset 0 0 10px ${enemy.color}11` }}>
+                <div style={{ flexShrink: 0, fontSize: '2.5rem', width: '60px', textAlign: 'center' }}>
+                  {enemy.icon}
+                </div>
+                
+                <div className="flex-col flex-grow" style={{ minWidth: 0 }}>
+                  <div className="flex justify-between items-end mb-1">
+                    <span className="font-bold text-lg text-white" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{enemy.name}</span>
+                    <span style={{ color: enemy.color, fontSize: '0.8rem', letterSpacing: '1px', fontWeight: 'bold' }}>{enemy.rounds}</span>
+                  </div>
+                  <div className="text-muted" style={{ fontSize: '0.875rem', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {enemy.description}
                   </div>
                 </div>
               </div>
