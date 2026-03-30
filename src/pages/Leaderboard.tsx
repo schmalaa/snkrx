@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useUser } from '@clerk/clerk-react';
 import { getPlayerTitle } from '../utils/getPlayerTitle';
+import { getFlagEmoji } from '../utils/getFlagEmoji';
 
 export const Leaderboard = () => {
   const { user } = useUser();
-  const [leaderboardData, setLeaderboardData] = useState<{ username: string, score: number }[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<{ username: string, score: number, country?: string }[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,9 @@ export const Leaderboard = () => {
                       </span>
                       <span className="flex items-center gap-3" style={{ fontSize: '1.8rem', color: user?.username === entry.username ? 'var(--accent)' : '#fff', fontWeight: user?.username === entry.username ? 'bold' : 'normal' }}>
                         {entry.username} {user?.username === entry.username && '(You)'}
+                        {entry.country && (
+                          <span style={{ fontSize: '1.4rem' }}>{getFlagEmoji(entry.country)}</span>
+                        )}
                         {badge && (
                           <span style={{ fontSize: '1rem', padding: '4px 10px', borderRadius: '4px', background: badge.bg, color: badge.color, textShadow: badge.glow, border: badge.border }}>
                             {badge.title}

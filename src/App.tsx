@@ -12,6 +12,7 @@ import { HeroIcon } from './components/HeroIcon';
 import { HowToPlay } from './pages/HowToPlay';
 import { Wiki } from './pages/Wiki';
 import { Leaderboard } from './pages/Leaderboard';
+import { Profile } from './pages/Profile';
 
 const filter = new Filter();
 
@@ -139,7 +140,11 @@ function App() {
         await fetch('/api/leaderboard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user.username, score: round })
+          body: JSON.stringify({ 
+            username: user.username, 
+            score: round,
+            country: user.unsafeMetadata?.country as string | undefined
+          })
         });
       } catch (err) {
         console.error("Failed to post high score", err);
@@ -267,6 +272,7 @@ function App() {
                     <Link to="/how-to-play" className={`nav-link ${location.pathname === '/how-to-play' ? 'active' : ''}`}>How to Play</Link>
                     <Link to="/wiki" className={`nav-link ${location.pathname === '/wiki' ? 'active' : ''}`}>Wiki</Link>
                     <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>Leaderboard</Link>
+                    <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>Profile</Link>
                   </div>
                 ) : (
                   <div className="gold-display absolute-center">
@@ -298,6 +304,7 @@ function App() {
               <Route path="/how-to-play" element={<HowToPlay />} />
               <Route path="/wiki" element={<Wiki />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/" element={
                 <>
                   {phase === 'ARENA' && (
