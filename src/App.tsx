@@ -330,6 +330,27 @@ function App() {
                     <HeroIcon key={idx} hero={s} size={24} />
                   ))}
                 </div>
+
+                {/* Active Relics HUD */}
+                {inventory.length > 0 && (
+                  <div style={{ position: 'absolute', top: '15px', left: '15px', display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 10 }}>
+                    <div className="text-muted text-sm font-bold tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>ACTIVE RELICS</div>
+                    {inventory.map((relic, idx) => (
+                      <motion.div 
+                        key={idx}
+                        className="glass-panel items-center flex gap-3"
+                        style={{ padding: '8px 16px', background: 'rgba(20,20,30,0.8)', border: '1px solid rgba(255,255,255,0.1)' }}
+                        animate={{ boxShadow: ['0 0 5px rgba(255,165,0,0.2)', '0 0 15px rgba(255,165,0,0.4)', '0 0 5px rgba(255,165,0,0.2)'] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: idx * 0.5 }}
+                      >
+                        <span className="text-xl" style={{ filter: 'drop-shadow(0 0 5px orange)' }}>✨</span>
+                        <div className="flex-col">
+                           <span className="font-bold text-accent" style={{ fontSize: '1.1rem' }}>{relic.name}</span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
 

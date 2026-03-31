@@ -195,7 +195,12 @@ export class ArenaEngine {
     }
     
     baseHp *= hpScale;
-    if (this.inventory.some(i => i.effectId === 'intimidation')) baseHp *= 0.8;
+    if (this.inventory.some(i => i.effectId === 'intimidation')) {
+       baseHp *= 0.8;
+       // Violet debuff burst on spawn
+       this.spawnParticles(x, y, '#9b59b6', 15, 3);
+       this.spawnHitCircle(x, y, '#9b59b6', 30);
+    }
     
     node.addComponent('HealthComp', new HealthComp(baseHp));
     
@@ -262,6 +267,10 @@ export class ArenaEngine {
     headT.rotation = Math.atan2(dy, dx);
     headT.x += dx * dt * moveSpeed;
     headT.y += dy * dt * moveSpeed;
+
+    if (this.inventory.some(i => i.effectId === 'centipede') && Math.random() < 0.25) {
+      this.spawnParticles(headT.x, headT.y, '#2ed573', 1, 3);
+    }
 
     // True snake pathing history
     if (hHist) {
@@ -459,11 +468,12 @@ export class ArenaEngine {
           if (Math.hypot(et.x - pt.x, et.y - pt.y) < col.radius + 5) {
              const eh = e.getComponent<HealthComp>('HealthComp')!;
              eh.hp -= pComp.damage;
+             const hasHeavy = this.inventory.some(i => i.effectId === 'heavy_impact');
              hit = true;
              const ehfx = e.getComponent<HfxComp>('HfxComp');
              if (ehfx) ehfx.hitLife = 0.2;
-             this.spawnParticles(pt.x, pt.y, 'white', 5, 2);
-             this.spawnHitCircle(pt.x, pt.y, 'white', 20);
+             this.spawnParticles(pt.x, pt.y, 'white', hasHeavy ? 12 : 5, hasHeavy ? 4 : 2);
+             this.spawnHitCircle(pt.x, pt.y, 'white', hasHeavy ? 35 : 20);
              const camSys = this.systems.find(s => s instanceof CameraSystem) as CameraSystem;
              if (camSys && pComp.damage > 20) camSys.shake(2, 0.1);
              break;
@@ -846,6 +856,9 @@ export class ArenaEngine {
       this.ctx.save();
       this.ctx.translate(pt.x, pt.y);
       this.ctx.rotate(pt.rotation);
+      
+      const hasHeavy = this.inventory.some(i => i.effectId === 'heavy_impact');
+      if (hasHeavy) this.ctx.scale(1.25, 1.25);
       
       this.ctx.fillStyle = pc.color;
       this.ctx.strokeStyle = pc.color;
