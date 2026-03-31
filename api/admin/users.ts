@@ -10,6 +10,16 @@ export default async function handler(request: any, response: any) {
       const { rows } = await pool.query('SELECT username, score, country, tags, last_played_at FROM leaderboard ORDER BY last_played_at DESC NULLS LAST LIMIT 100;');
       return response.status(200).json(rows);
     } catch (error: any) {
+      if (error.message?.includes('column')) {
+        try {
+          await pool.query('ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS tags VARCHAR(255);');
+          await pool.query('ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS last_played_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;');
+          const { rows } = await pool.query('SELECT username, score, country, tags, last_played_at FROM leaderboard ORDER BY last_played_at DESC NULLS LAST LIMIT 100;');
+          return response.status(200).json(rows);
+        } catch (retryError: any) {
+          return response.status(500).json({ error: retryError.message });
+        }
+      }
       return response.status(500).json({ error: error.message });
     }
   } else if (request.method === 'POST') {
