@@ -1,8 +1,21 @@
-export const getPlayerTitle = (username: string, maxScore: number) => {
+export const getPlayerTitle = (username: string, maxScore: number, tags?: string) => {
   if (!username) return null;
-  const name = username.toLowerCase();
+
+  if (tags) {
+    const list = tags.toLowerCase().split(',').map(s => s.trim());
+    if (list.includes('banned')) {
+      return { title: 'BANNED', color: '#7f8c8d', glow: 'none', bg: 'rgba(50, 50, 50, 0.4)', border: '1px solid #7f8c8d' };
+    }
+    if (list.includes('dev')) {
+      return { title: 'DEV', color: '#ff4757', glow: '0 0 10px #ff4757', bg: 'rgba(255, 71, 87, 0.15)', border: '1px solid #ff4757' };
+    }
+    if (list.includes('vip')) {
+      return { title: 'VIP', color: '#ffa502', glow: '0 0 10px #ffa502', bg: 'rgba(255, 165, 2, 0.15)', border: '1px solid #ffa502' };
+    }
+  }
 
   // Hardcoded Roles
+  const name = username.toLowerCase();
   if (name === 'helenkiller' || name === 'schmalaa') {
     return { title: 'DEV', color: '#ff4757', glow: '0 0 10px #ff4757', bg: 'rgba(255, 71, 87, 0.15)', border: '1px solid #ff4757' };
   }

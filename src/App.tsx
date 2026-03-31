@@ -13,6 +13,7 @@ import { HowToPlay } from './pages/HowToPlay';
 import { Wiki } from './pages/Wiki';
 import { Leaderboard } from './pages/Leaderboard';
 import { Profile } from './pages/Profile';
+import { Admin } from './pages/Admin';
 
 const filter = new Filter();
 
@@ -273,6 +274,9 @@ function App() {
                     <Link to="/wiki" className={`nav-link ${location.pathname === '/wiki' ? 'active' : ''}`}>Wiki</Link>
                     <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>Leaderboard</Link>
                     <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>Profile</Link>
+                    {user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' && (
+                      <Link to="/admin" className={`nav-link text-accent`}>Admin</Link>
+                    )}
                   </div>
                 ) : (
                   <div className="gold-display absolute-center">
@@ -305,6 +309,11 @@ function App() {
               <Route path="/wiki" element={<Wiki />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={
+                user?.primaryEmailAddress?.emailAddress === 'schmalaa@gmail.com' 
+                  ? <Admin /> 
+                  : <div className="overlay z-100 flex items-center justify-center title text-5xl text-accent-secondary bg-black">UNAUTHORIZED DIRECTIVE</div>
+              } />
               <Route path="/" element={
                 <>
                   {phase === 'ARENA' && (

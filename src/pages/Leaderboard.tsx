@@ -6,7 +6,7 @@ import { FlagIcon } from '../components/FlagIcon';
 
 export const Leaderboard = () => {
   const { user } = useUser();
-  const [leaderboardData, setLeaderboardData] = useState<{ username: string, score: number, country?: string }[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<{ username: string, score: number, country?: string, tags?: string }[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const Leaderboard = () => {
           ) : (
             <div className="flex-col gap-3">
               {leaderboardData.map((entry, idx) => {
-                const badge = getPlayerTitle(entry.username, entry.score);
+                const badge = getPlayerTitle(entry.username, entry.score, entry.tags);
                 const isMe = user?.username === entry.username;
                 const userMetadataCountry = isMe ? (user?.unsafeMetadata?.country as string) : undefined;
                 const activeCountry = userMetadataCountry || entry.country;
